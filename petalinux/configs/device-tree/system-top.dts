@@ -1,0 +1,39 @@
+/dts-v1/;
+/include/ "system-conf.dtsi"
+/ {
+};
+
+&gem0 {
+	phy-handle = <&phy0>;
+	phy-mode = "rgmii-id";
+
+	ps7_ethernet_0_mdio: mdio {
+		status = "disabled";
+	};	
+
+	phy0: phy@0 {
+		compatible = "marvell,88e1510";
+		device_type = "ethernet-phy";
+		reg = <0x0>;
+		marvell,reg-init = <3 16 0xff00 0x1e 3 17 0xfff0 0x00>;
+	};
+};
+
+&qspi {
+	flash0: flash@0 {
+		compatible = "micron,n25q128a13";
+	};
+};
+
+/{
+    usb_phy0:usb_phy@0 {
+        compatible="usb-nop-xceiv";
+        #phy-cells = <0>;
+    };
+};
+
+
+&usb0 {
+	dr_mode = "otg";
+	usb-phy = <&usb_phy0>;
+} ;
