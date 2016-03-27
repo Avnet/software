@@ -28,32 +28,32 @@
 # 
 # ----------------------------------------------------------------------------
 # 
-#  Create Date:         Feb 08, 2016
-#  Design Name:         PicoZed PetaLinux BSP Generator
-#  Module Name:         make_pz_petalinux_bsp.tcl
-#  Project Name:        PicoZed PetaLinux BSP Generator
+#  Create Date:         Mar 26, 2016
+#  Design Name:         MicroZed PetaLinux BSP Generator
+#  Module Name:         make_mz_petalinux_bsp.tcl
+#  Project Name:        MicroZed PetaLinux BSP Generator
 #  Target Devices:      Xilinx Zynq-7000
-#  Hardware Boards:     PicoZed SOM
+#  Hardware Boards:     MicroZed SOM
 # 
 #  Tool versions:       Xilinx Vivado 2015.2
 # 
-#  Description:         Build Script for PicoZed PetaLinux BSP HW Platform
+#  Description:         Build Script for MicroZed PetaLinux BSP HW Platform
 # 
 #  Dependencies:        None
 #
-#  Revision:            Feb 08, 2016: 1.00 Initial version
+#  Revision:            Mar 26, 2016: 1.00 Initial version
 # 
 # ----------------------------------------------------------------------------
 
 #!/bin/bash
 
 # Set global variables here.
-BUILD_BOOT_QSPI_OPTION=yes
-BUILD_BOOT_EMMC_OPTION=yes
-BUILD_BOOT_EMMC_NO_BIT_OPTION=yes
+BUILD_BOOT_QSPI_OPTION=no
+BUILD_BOOT_EMMC_OPTION=no
+BUILD_BOOT_EMMC_NO_BIT_OPTION=no
 FSBL_PROJECT_NAME=zynq_fsbl_app
-HDL_HARDWARE_NAME=pz_petalinux_hw
-HDL_PROJECT_NAME=pz_petalinux
+HDL_HARDWARE_NAME=mz_petalinux_hw
+HDL_PROJECT_NAME=mz_petalinux
 HDL_PROJECTS_FOLDER=../../../hdl/Projects
 HDL_SCRIPTS_FOLDER=../../../hdl/Scripts
 PETALINUX_APPS_FOLDER=../../../software/petalinux/apps
@@ -539,31 +539,17 @@ main_make_function ()
   vivado -mode batch -source make_${HDL_PROJECT_NAME}.tcl
 
   #
-  # Create the PetaLinux BSP for the PZ7010_FMC2 target.
+  # Create the PetaLinux BSP for the MZ7010_FMCCC target.
   #
-  HDL_BOARD_NAME=PZ7010_FMC2
-  PETALINUX_PROJECT_NAME=pz_7010_2015_2_1
+  HDL_BOARD_NAME=MZ7010_FMCCC
+  PETALINUX_PROJECT_NAME=mz_7010_2015_2_1
   create_petalinux_bsp
 
   #
-  # Create the PetaLinux BSP for the PZ7015_FMC2 target.
+  # Create the PetaLinux BSP for the MZ7020_FMCCC target.
   #
-  HDL_BOARD_NAME=PZ7015_FMC2
-  PETALINUX_PROJECT_NAME=pz_7015_2015_2_1
-  create_petalinux_bsp
-
-  #
-  # Create the PetaLinux BSP for the PZ7020_FMC2 target.
-  #
-  HDL_BOARD_NAME=PZ7020_FMC2
-  PETALINUX_PROJECT_NAME=pz_7020_2015_2_1
-  create_petalinux_bsp
-
-  #
-  # Create the PetaLinux BSP for the PZ7030_FMC2 target.
-  #
-  HDL_BOARD_NAME=PZ7030_FMC2
-  PETALINUX_PROJECT_NAME=pz_7030_2015_2_1
+  HDL_BOARD_NAME=MZ7020_FMCCC
+  PETALINUX_PROJECT_NAME=mz_7020_2015_2_1
   create_petalinux_bsp
 }
 
