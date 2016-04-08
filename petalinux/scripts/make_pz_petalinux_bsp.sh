@@ -51,6 +51,7 @@
 BUILD_BOOT_QSPI_OPTION=yes
 BUILD_BOOT_EMMC_OPTION=yes
 BUILD_BOOT_EMMC_NO_BIT_OPTION=yes
+BUILD_BOOT_SD_NO_BIT_OPTION=yes
 FSBL_PROJECT_NAME=zynq_fsbl_app
 HDL_HARDWARE_NAME=pz_petalinux_hw
 HDL_PROJECT_NAME=pz_petalinux
@@ -175,6 +176,19 @@ petalinux_project_set_boot_config_emmc_no_bit ()
   cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}
 }
 
+petalinux_project_set_boot_config_sd_no_bit ()
+{ 
+  # Add support for SD commands to U-Boot top level configuration which
+  # allows for bistream to be loaded from SD file instead of the BOOT.BIN 
+  # container file.
+  echo " "
+  echo "Applying patch to add SD bitstream load support in U-Boot ..."
+  echo " "
+  cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/subsystems/linux/configs/u-boot
+  patch < ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/u-boot/platform-auto.h.sd_boot_no_bit.patch
+  cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}
+}
+
 petalinux_project_set_boot_config_qspi ()
 { 
   # Change PetaLinux project config to boot from QSPI.
@@ -295,7 +309,7 @@ create_petalinux_bsp ()
   # Create a PetaLinux application named media.
   petalinux-create --type apps --name media --enable
 
-  # Copy the media folder over to the the weaved application
+  # Copy the media folder over to the the media application
   # folder.
   cp -rf ${START_FOLDER}/${PETALINUX_APPS_FOLDER}/media/* \
   ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/components/apps/media/
@@ -433,22 +447,48 @@ create_petalinux_bsp ()
   # boot options.
   petalinux_project_restore_boot_config
 
+  # If the SD no bit boot option is set, then perform the steps needed to  
+  # build BOOT.BIN for booting from SD with the bistream loaded from a file
+  # on the SD card instead of from the BOOT.BIN container image.
+  if [ "$BUILD_BOOT_SD_NO_BIT_OPTION" == "yes" ]
+  then
+    # Modify the project configuration for sd boot.
+    petalinux_project_set_boot_config_sd_no_bit
+
+    # Make sure that intermediary files get cleaned up.
+    petalinux-build -x distclean
+
+    # Build PetaLinux project.
+    petalinux-build 
+
+    # Create boot image which does not contain the bistream image.
+    petalinux-package --boot --fsbl hw_platform/${FSBL_PROJECT_NAME}.elf --uboot --force
+
+    # Copy the boot.bin file and name the new file BOOT_SD_No_Bit.BIN
+    cp ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/images/linux/BOOT.BIN \
+    ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/images/linux/BOOT_SD_No_Bit.BIN
+
+    # Create a temporary Vivado TCL script which take the standard bitstream 
+    # file format and modify it to allow u-boot to load it into the 
+    # programmable logic on the Zynq device via PCAP interface.
+    echo "write_cfgmem -format bin -interface spix1 -loadbit \"up 0x0 hw_platform/system_wrapper.bit\" -force images/linux/system.bit.bin" > swap_bits.tcl
+    
+    # Launch vivado in batch mode to clean output products from the hardware platform.
+    vivado -mode batch -source swap_bits.tcl
+
+    # Remove the temporary Vivado script.
+    rm -f swap_bits.tcl
+  fi
+
+  # Restore project configurations and wipe out any changes made for special 
+  # boot options.
+  petalinux_project_restore_boot_config
+
   # Make sure that intermediary files get cleaned up.
   petalinux-build -x distclean
 
   # Build PetaLinux project.
   petalinux-build 
-
-  # Force creation of the /run/media folder needed to mount MMC devices on the 
-  # target system.
-  echo " "
-  echo "Creating /run/media within rootfs ..."
-  echo " "
-  #mkdir ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/build/linux/rootfs/targetroot/run
-  #mkdir ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/build/linux/rootfs/targetroot/run/media
-
-  # Build PetaLinux project to force rootfs changes to be packaged.
-  #petalinux-build -c rootfs
 
   # Create boot image.
   petalinux-package --boot --fsbl hw_platform/${FSBL_PROJECT_NAME}.elf --fpga hw_platform/system_wrapper.bit --uboot --force
@@ -513,6 +553,17 @@ create_petalinux_bsp ()
   if [ "$BUILD_BOOT_EMMC_NO_BIT_OPTION" == "yes" ]
   then
     cp ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/images/linux/BOOT_EMMC_No_Bit.BIN \
+    ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/pre-built/linux/images/
+
+    cp ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/images/linux/system.bit.bin \
+    ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/pre-built/linux/images/
+  fi
+
+  # If the BOOT_SD_NO_BIT_OPTION is set, copy the BOOT_EMMC_No_Bit.BIN and 
+  # the system.bit.bin files into the pre-built images folder.
+  if [ "$BUILD_BOOT_SD_NO_BIT_OPTION" == "yes" ]
+  then
+    cp ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/images/linux/BOOT_SD_No_Bit.BIN \
     ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/pre-built/linux/images/
 
     cp ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/images/linux/system.bit.bin \
