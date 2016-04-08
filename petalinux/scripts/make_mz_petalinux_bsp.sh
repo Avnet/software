@@ -62,6 +62,14 @@ PETALINUX_PROJECTS_FOLDER=../../../software/petalinux/projects
 PETALINUX_SCRIPTS_FOLDER=../../../software/petalinux/scripts
 START_FOLDER=`pwd`
 
+source_tools_settings ()
+{
+  # Source the tools settings scripts so that both Vivado and PetaLinux can 
+  # be used throughout this build script.
+  source /opt/Xilinx/Vivado/2015.2/settings64.sh
+  source /opt/petalinux-v2015.2.1-final/settings.sh
+}
+
 petalinux_project_restore_boot_config ()
 {
   # Restore original PetaLinux project config. Don't forget that the
@@ -507,6 +515,14 @@ create_petalinux_bsp ()
   --hwsource ${START_FOLDER}/${HDL_PROJECTS_FOLDER}/${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}/ \
   --output ${PETALINUX_PROJECT_NAME}
 
+  # Append the template Makefile to the PetaLinux BSP package. 
+  gzip -dc ${PETALINUX_PROJECT_NAME}.bsp >${PETALINUX_PROJECT_NAME}.tar
+  cp -f ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/Makefile .
+  tar --append ${PETALINUX_PROJECT_NAME}/Makefile -f ${PETALINUX_PROJECT_NAME}.tar
+  gzip -c ${PETALINUX_PROJECT_NAME}.tar > ${PETALINUX_PROJECT_NAME}.bsp
+  rm -f Makefile
+  rm -f ${PETALINUX_PROJECT_NAME}.tar
+
   # Change to PetaLinux scripts folder.
   cd ${START_FOLDER}/${PETALINUX_SCRIPTS_FOLDER}
 }
@@ -521,11 +537,6 @@ main_make_function ()
   # Once the PetaLinux BSP creation is complete, a BSP package file with the
   # name specified in the PETALINUX_PROJECT_NAME variable can be distributed
   # for use to others.
-
-  # Source the tools settings scripts so that both Vivado and PetaLinux can 
-  # be used throughout this build script.
-  source /opt/Xilinx/Vivado/2015.2/settings64.sh
-  source /opt/petalinux-v2015.2.1-final/settings.sh
 
   #
   # Create the hardware platforms for the supported targets.
@@ -552,6 +563,10 @@ main_make_function ()
   PETALINUX_PROJECT_NAME=mz_7020_2015_2_1
   create_petalinux_bsp
 }
+
+# First source any tools scripts to setup the environment needed to call both
+# PetaLinux and Vivado from this make script.
+source_tools_settings
 
 # Call the main_make_function declared above to start building everything.
 main_make_function

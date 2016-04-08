@@ -1,0 +1,4 @@
+Mount media, such as SD cards, in this folder /run/media otherwise there is a warning when booting the kernel:
+
+mkdir: can't create directory '/run/media/mmcblk0p1' : no such file or directory
+mount: mounting /dev/mmcblk0p1 on run/media/mmcblk0p1 failed: No such file or directory 

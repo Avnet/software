@@ -62,6 +62,14 @@ PETALINUX_PROJECTS_FOLDER=../../../software/petalinux/projects
 PETALINUX_SCRIPTS_FOLDER=../../../software/petalinux/scripts
 START_FOLDER=`pwd`
 
+source_tools_settings ()
+{
+  # Source the tools settings scripts so that both Vivado and PetaLinux can 
+  # be used throughout this build script.
+  source /opt/Xilinx/Vivado/2015.2/settings64.sh
+  source /opt/petalinux-v2015.2.1-final/settings.sh
+}
+
 petalinux_project_restore_boot_config ()
 {
   # Restore original PetaLinux project config. Don't forget that the
@@ -228,7 +236,7 @@ create_petalinux_bsp ()
   echo " "
 
   cp -f ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}/${HDL_PROJECT_NAME}.runs/impl_1/${HDL_PROJECT_NAME}_wrapper.bit \
-  ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/hw_platform/${HDL_HARDWARE_NAME}.bit
+  ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/hw_platform/system_wrapper.bit
 
   # Import the First Stage Boot Loader application executable from the SDK
   # workspace FSBL application folder.
@@ -283,6 +291,14 @@ create_petalinux_bsp ()
   # application folder.
   cp -rf ${START_FOLDER}/${PETALINUX_APPS_FOLDER}/force_usb_power/* \
   ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/components/apps/force_usb_power
+
+  # Create a PetaLinux application named media.
+  petalinux-create --type apps --name media --enable
+
+  # Copy the media folder over to the the weaved application
+  # folder.
+  cp -rf ${START_FOLDER}/${PETALINUX_APPS_FOLDER}/media/* \
+  ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/components/apps/media/
 
   # Create a PetaLinux application named uWeb_custom.
   petalinux-create --type apps --name uWeb_custom --enable
@@ -344,7 +360,7 @@ create_petalinux_bsp ()
     petalinux-build 
 
     # Create boot image.
-    petalinux-package --boot --fsbl hw_platform/${FSBL_PROJECT_NAME}.elf --fpga hw_platform/${HDL_HARDWARE_NAME}.bit --uboot --force
+    petalinux-package --boot --fsbl hw_platform/${FSBL_PROJECT_NAME}.elf --fpga hw_platform/system_wrapper.bit --uboot --force
 
     # Copy the boot.bin file and name the new file BOOT_QSPI.bin
     cp ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/images/linux/BOOT.BIN \
@@ -369,7 +385,7 @@ create_petalinux_bsp ()
     petalinux-build 
 
     # Create boot image.
-    petalinux-package --boot --fsbl hw_platform/${FSBL_PROJECT_NAME}.elf --fpga hw_platform/${HDL_HARDWARE_NAME}.bit --uboot --force
+    petalinux-package --boot --fsbl hw_platform/${FSBL_PROJECT_NAME}.elf --fpga hw_platform/system_wrapper.bit --uboot --force
 
     # Copy the boot.bin file and name the new file BOOT_EMMC.bin
     cp ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/images/linux/BOOT.BIN \
@@ -404,7 +420,7 @@ create_petalinux_bsp ()
     # Create a temporary Vivado TCL script which take the standard bitstream 
     # file format and modify it to allow u-boot to load it into the 
     # programmable logic on the Zynq device via PCAP interface.
-    echo "write_cfgmem -format bin -interface spix1 -loadbit \"up 0x0 hw_platform/${HDL_HARDWARE_NAME}.bit\" -force images/linux/system.bit.bin" > swap_bits.tcl
+    echo "write_cfgmem -format bin -interface spix1 -loadbit \"up 0x0 hw_platform/system_wrapper.bit\" -force images/linux/system.bit.bin" > swap_bits.tcl
     
     # Launch vivado in batch mode to clean output products from the hardware platform.
     vivado -mode batch -source swap_bits.tcl
@@ -428,13 +444,14 @@ create_petalinux_bsp ()
   echo " "
   echo "Creating /run/media within rootfs ..."
   echo " "
-  mkdir ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/build/linux/rootfs/targetroot/run/media
+  #mkdir ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/build/linux/rootfs/targetroot/run
+  #mkdir ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/build/linux/rootfs/targetroot/run/media
 
   # Build PetaLinux project to force rootfs changes to be packaged.
-  petalinux-build -c rootfs
+  #petalinux-build -c rootfs
 
   # Create boot image.
-  petalinux-package --boot --fsbl hw_platform/${FSBL_PROJECT_NAME}.elf --fpga hw_platform/${HDL_HARDWARE_NAME}.bit --uboot --force
+  petalinux-package --boot --fsbl hw_platform/${FSBL_PROJECT_NAME}.elf --fpga hw_platform/system_wrapper.bit --uboot --force
 
   # Copy the boot.bin file and name the new file BOOT_SD.bin
   cp ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/images/linux/BOOT.BIN \
@@ -455,7 +472,7 @@ create_petalinux_bsp ()
   cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/
 
   # Package the bitstream within the PetaLinux pre-built folder.
-  petalinux-package --prebuilt --fpga hw_platform/${HDL_HARDWARE_NAME}.bit
+  petalinux-package --prebuilt --fpga hw_platform/system_wrapper.bit
 
   # Copy the template Makefile over to the PetaLinux project folder. This 
   # Makefile template can later be customized as desired. 
@@ -465,7 +482,7 @@ create_petalinux_bsp ()
   # Rename the pre-built bitstream file to download.bit so that the default 
   # format for the petalinux-boot command over jtag will not need the bit file 
   # specified explicitly.
-  mv -f pre-built/linux/implementation/${HDL_HARDWARE_NAME}.bit \
+  mv -f pre-built/linux/implementation/system_wrapper.bit \
   pre-built/linux/implementation/download.bit
 
   # Change to PetaLinux projects folder.
@@ -507,6 +524,14 @@ create_petalinux_bsp ()
   --hwsource ${START_FOLDER}/${HDL_PROJECTS_FOLDER}/${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}/ \
   --output ${PETALINUX_PROJECT_NAME}
 
+  # Append the template Makefile to the PetaLinux BSP package. 
+  gzip -dc ${PETALINUX_PROJECT_NAME}.bsp >${PETALINUX_PROJECT_NAME}.tar
+  cp -f ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/Makefile .
+  tar --append ${PETALINUX_PROJECT_NAME}/Makefile -f ${PETALINUX_PROJECT_NAME}.tar
+  gzip -c ${PETALINUX_PROJECT_NAME}.tar > ${PETALINUX_PROJECT_NAME}.bsp
+  rm -f Makefile
+  rm -f ${PETALINUX_PROJECT_NAME}.tar
+
   # Change to PetaLinux scripts folder.
   cd ${START_FOLDER}/${PETALINUX_SCRIPTS_FOLDER}
 }
@@ -521,11 +546,6 @@ main_make_function ()
   # Once the PetaLinux BSP creation is complete, a BSP package file with the
   # name specified in the PETALINUX_PROJECT_NAME variable can be distributed
   # for use to others.
-
-  # Source the tools settings scripts so that both Vivado and PetaLinux can 
-  # be used throughout this build script.
-  source /opt/Xilinx/Vivado/2015.2/settings64.sh
-  source /opt/petalinux-v2015.2.1-final/settings.sh
 
   #
   # Create the hardware platforms for the supported targets.
@@ -566,6 +586,10 @@ main_make_function ()
   PETALINUX_PROJECT_NAME=pz_7030_2015_2_1
   create_petalinux_bsp
 }
+
+# First source any tools scripts to setup the environment needed to call both
+# PetaLinux and Vivado from this make script.
+source_tools_settings
 
 # Call the main_make_function declared above to start building everything.
 main_make_function

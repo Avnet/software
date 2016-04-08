@@ -1,5 +1,5 @@
 BOOT_FSBL_IMAGE = images/linux/zynq_fsbl.elf
-BOOT_BIT_IMAGE = subsystems/linux/hw-description/System_wrapper.bit
+BOOT_BIT_IMAGE = subsystems/linux/hw-description/system_wrapper.bit
 BOOT_UBOOT_IMAGE = images/linux/u-boot.elf
 BOOT_IMAGE = boot.bin
 KERNEL_IMAGE = images/linux/image.ub
