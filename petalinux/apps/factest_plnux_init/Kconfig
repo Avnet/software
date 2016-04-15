@@ -1,0 +1,14 @@
+###############################################################################
+# Please modify this file if you want to configure your own application.
+# You can uncommon and/or change the following Kconfig elements.
+###############################################################################
+
+
+if ROOTFS_COMPONENT_APPS_NAME_FACTEST_PLNUX_INIT
+	comment "No additional options for FACTEST_PLNUX_INIT"
+
+# 	config APPS_FACTEST_PLNUX_INIT_OPTION0
+#	bool "option0"
+#	help
+#	  Help text
+endif
