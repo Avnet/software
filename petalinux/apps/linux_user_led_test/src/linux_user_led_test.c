@@ -54,24 +54,107 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+/* String formats used to build the file name path to specific GPIO
+ * instances. */
+#define FILE_FORMAT_GPIO_PATH          "/sys/class/gpio"
+#define FILE_FORMAT_GPIO_EXPORT        "/export"
+#define FILE_FORMAT_GPIO_DIRECTION     "/direction"
+#define FILE_FORMAT_GPIO_VALUE         "/value"
+
+/* The GPIO_KERNEL_OFFSET is the offset that is used to reach the GPIOs
+ * that are controlled by the GPIO controller on the device.  For a Zynq-7000
+ * device, this usually is used for the GPIO controller to control user
+ * controls connected via EMIO ports.  This has it's own separate definition
+ * because sometimes it changes based upon the whims of the kernel
+ * maintainers.  So far, it has changed on me at least twice and it more
+ * likely than not bound to change someday after this code is released.
+ */
+#define GPIO_KERNEL_OFFSET             906
+
+/* The GPIO_KERNEL_OFFSET is the offset that is used to reach the GPIOs
+ * that are controlled by the GPIO controller on the device.  For a Zynq-7000
+ * device, this usually is used for the GPIO controller to control user
+ * controls connected via EMIO ports.  This has it's own separate definition
+ * because sometimes it changes based upon the whims of the kernel
+ * maintainers.  So far, it has changed on me at least twice and it more
+ * likely than not bound to change someday after this code is released.
+ */
+#define GPIO_EMIO_OFFSET             ((GPIO_KERNEL_OFFSET) + 54)
+
+/* The LEDx_GPIO_OFFSET and PBx_GPIO_OFFSET definitions are used to indicate
+ * the relative offset from the base start of the EMIO GPIO user connections.
+ * In a typical reference design, the User IO will be assigned all at once
+ * to an EMIO connection and connected externally to via the
+ * emio_user_tri_io[] bus in the XDC constraints file and so these offsets
+ * here should match the offsets of the hardware constraints as well.
+ */
+#define LED1_GPIO_OFFSET               ((GPIO_EMIO_OFFSET) + 0)
+#define LED2_GPIO_OFFSET               ((GPIO_EMIO_OFFSET) + 1)
+#define LED3_GPIO_OFFSET               ((GPIO_EMIO_OFFSET) + 2)
+#define LED4_GPIO_OFFSET               ((GPIO_EMIO_OFFSET) + 3)
+
+#define PB1_GPIO_OFFSET                ((GPIO_EMIO_OFFSET) + 4)
+#define PB2_GPIO_OFFSET                ((GPIO_EMIO_OFFSET) + 5)
+#define PB3_GPIO_OFFSET                ((GPIO_EMIO_OFFSET) + 6)
+#define PB4_GPIO_OFFSET                ((GPIO_EMIO_OFFSET) + 7)
+#define PB5_GPIO_OFFSET                ((GPIO_EMIO_OFFSET) + 8)
+
+
 static unsigned int direction = 1;
 
 int set_next_count_pattern(void)
 {
+	const int char_buf_size = 80;
 	static unsigned int count = 0;
 	char gpio_setting[5];
 	int test_result = 0;
+	char formatted_file_name[char_buf_size];
 
-	FILE  *fp_led0;
 	FILE  *fp_led1;
 	FILE  *fp_led2;
 	FILE  *fp_led3;
+	FILE  *fp_led4;
 
-	// Open the gpio value properties so that they can be read/written.
-	fp_led0 = fopen("/sys/class/gpio/gpio965/value", "r+");
-	fp_led1 = fopen("/sys/class/gpio/gpio966/value", "r+");
-	fp_led2 = fopen("/sys/class/gpio/gpio967/value", "r+");
-	fp_led3 = fopen("/sys/class/gpio/gpio968/value", "r+");
+	// Open the LED gpio value properties so that they can be read/written.
+	test_result = snprintf(formatted_file_name, (char_buf_size - 1), FILE_FORMAT_GPIO_PATH"/gpio%d"FILE_FORMAT_GPIO_VALUE, LED1_GPIO_OFFSET);
+	if ((test_result < 0) ||
+		(test_result == (char_buf_size - 1)))
+	{
+		printf("Error formatting string, check the GPIO specified\r\n");
+		printf(formatted_file_name);
+		return -1;
+	}
+	fp_led1 = fopen(formatted_file_name, "r+");
+
+	test_result = snprintf(formatted_file_name, (char_buf_size - 1), FILE_FORMAT_GPIO_PATH"/gpio%d"FILE_FORMAT_GPIO_VALUE, LED2_GPIO_OFFSET);
+	if ((test_result < 0) ||
+		(test_result == (char_buf_size - 1)))
+	{
+		printf("Error formatting string, check the GPIO specified\r\n");
+		printf(formatted_file_name);
+		return -1;
+	}
+	fp_led2 = fopen(formatted_file_name, "r+");
+
+	test_result = snprintf(formatted_file_name, (char_buf_size - 1), FILE_FORMAT_GPIO_PATH"/gpio%d"FILE_FORMAT_GPIO_VALUE, LED3_GPIO_OFFSET);
+	if ((test_result < 0) ||
+		(test_result == (char_buf_size - 1)))
+	{
+		printf("Error formatting string, check the GPIO specified\r\n");
+		printf(formatted_file_name);
+		return -1;
+	}
+	fp_led3 = fopen(formatted_file_name, "r+");
+
+	test_result = snprintf(formatted_file_name, (char_buf_size - 1), FILE_FORMAT_GPIO_PATH"/gpio%d"FILE_FORMAT_GPIO_VALUE, LED4_GPIO_OFFSET);
+	if ((test_result < 0) ||
+		(test_result == (char_buf_size - 1)))
+	{
+		printf("Error formatting string, check the GPIO specified\r\n");
+		printf(formatted_file_name);
+		return -1;
+	}
+	fp_led4 = fopen(formatted_file_name, "r+");
 
 	// Write test pattern to LEDs.
 	if ((count == 0) && ((direction == 0) || (direction == 4) || (direction == 5)))
@@ -92,8 +175,9 @@ int set_next_count_pattern(void)
 	{
 		strcpy(gpio_setting, "0");
 	}
-	fwrite(&gpio_setting, sizeof(char), 1, fp_led0);
-	fflush(fp_led0);
+
+	fwrite(&gpio_setting, sizeof(char), 1, fp_led1);
+	fflush(fp_led1);
 
 	if ((count == 1) && ((direction == 0) || (direction == 1) || (direction == 4) || (direction == 5)))
 	{
@@ -107,8 +191,8 @@ int set_next_count_pattern(void)
 	{
 		strcpy(gpio_setting, "0");
 	}
-	fwrite(&gpio_setting, sizeof(char), 1, fp_led1);
-	fflush(fp_led1);
+	fwrite(&gpio_setting, sizeof(char), 1, fp_led2);
+	fflush(fp_led2);
 
 	if ((count == 2) && ((direction == 0) || (direction == 1) || (direction == 4) || (direction == 5)))
 	{
@@ -122,8 +206,8 @@ int set_next_count_pattern(void)
 	{
 		strcpy(gpio_setting, "0");
 	}
-	fwrite(&gpio_setting, sizeof(char), 1, fp_led2);
-	fflush(fp_led2);
+	fwrite(&gpio_setting, sizeof(char), 1, fp_led3);
+	fflush(fp_led3);
 
 	if ((count == 3) && ((direction == 1) || (direction == 4) || (direction == 5)))
 	{
@@ -143,8 +227,8 @@ int set_next_count_pattern(void)
 	{
 		strcpy(gpio_setting, "0");
 	}
-	fwrite(&gpio_setting, sizeof(char), 1, fp_led3);
-	fflush(fp_led3);
+	fwrite(&gpio_setting, sizeof(char), 1, fp_led4);
+	fflush(fp_led4);
 
 	if (((direction == 1) & (count < 4)) ||
 		(direction == 2))
@@ -193,42 +277,134 @@ int set_next_count_pattern(void)
 	}
 
 	// Close the GPIO value property files.
-	fclose(fp_led0);
 	fclose(fp_led1);
 	fclose(fp_led2);
 	fclose(fp_led3);
+	fclose(fp_led4);
 
 	return test_result;
 }
 
 int set_next_input_pattern(void)
 {
+	const int char_buf_size = 80;
 	char gpio_setting[5];
 	int test_result = 0;
+	char formatted_file_name[char_buf_size];
 
-	FILE  *fp_led0;
 	FILE  *fp_led1;
 	FILE  *fp_led2;
 	FILE  *fp_led3;
-	FILE  *fp_pb0;
+	FILE  *fp_led4;
 	FILE  *fp_pb1;
 	FILE  *fp_pb2;
 	FILE  *fp_pb3;
 	FILE  *fp_pb4;
+	FILE  *fp_pb5;
 
 	// Open the gpio value properties so that they can be read/written.
-	fp_led0 = fopen("/sys/class/gpio/gpio965/value", "r+");
-	fp_led1 = fopen("/sys/class/gpio/gpio966/value", "r+");
-	fp_led2 = fopen("/sys/class/gpio/gpio967/value", "r+");
-	fp_led3 = fopen("/sys/class/gpio/gpio968/value", "r+");
-	fp_pb0 = fopen("/sys/class/gpio/gpio960/value", "r");
-	fp_pb1 = fopen("/sys/class/gpio/gpio961/value", "r");
-	fp_pb2 = fopen("/sys/class/gpio/gpio962/value", "r");
-	fp_pb3 = fopen("/sys/class/gpio/gpio963/value", "r");
-	fp_pb4 = fopen("/sys/class/gpio/gpio964/value", "r");
+
+	// Open the value property file for LED1.
+	test_result = snprintf(formatted_file_name, (char_buf_size - 1), FILE_FORMAT_GPIO_PATH"/gpio%d"FILE_FORMAT_GPIO_VALUE, LED1_GPIO_OFFSET);
+	if ((test_result < 0) ||
+		(test_result == (char_buf_size - 1)))
+	{
+		printf("Error formatting string, check the GPIO specified\r\n");
+		printf(formatted_file_name);
+		return -1;
+	}
+	fp_led1 = fopen(formatted_file_name, "r+");
+
+	// Open the value property file for LED2.
+	test_result = snprintf(formatted_file_name, (char_buf_size - 1), FILE_FORMAT_GPIO_PATH"/gpio%d"FILE_FORMAT_GPIO_VALUE, LED2_GPIO_OFFSET);
+	if ((test_result < 0) ||
+		(test_result == (char_buf_size - 1)))
+	{
+		printf("Error formatting string, check the GPIO specified\r\n");
+		printf(formatted_file_name);
+		return -1;
+	}
+	fp_led2 = fopen(formatted_file_name, "r+");
+
+	// Open the value property file for LED3.
+	test_result = snprintf(formatted_file_name, (char_buf_size - 1), FILE_FORMAT_GPIO_PATH"/gpio%d"FILE_FORMAT_GPIO_VALUE, LED3_GPIO_OFFSET);
+	if ((test_result < 0) ||
+		(test_result == (char_buf_size - 1)))
+	{
+		printf("Error formatting string, check the GPIO specified\r\n");
+		printf(formatted_file_name);
+		return -1;
+	}
+	fp_led3 = fopen(formatted_file_name, "r+");
+
+	// Open the value property file for LED4.
+	test_result = snprintf(formatted_file_name, (char_buf_size - 1), FILE_FORMAT_GPIO_PATH"/gpio%d"FILE_FORMAT_GPIO_VALUE, LED4_GPIO_OFFSET);
+	if ((test_result < 0) ||
+		(test_result == (char_buf_size - 1)))
+	{
+		printf("Error formatting string, check the GPIO specified\r\n");
+		printf(formatted_file_name);
+		return -1;
+	}
+	fp_led4 = fopen(formatted_file_name, "r+");
+
+	// Open the value property file for PB1.
+	test_result = snprintf(formatted_file_name, (char_buf_size - 1), FILE_FORMAT_GPIO_PATH"/gpio%d"FILE_FORMAT_GPIO_VALUE, PB1_GPIO_OFFSET);
+	if ((test_result < 0) ||
+		(test_result == (char_buf_size - 1)))
+	{
+		printf("Error formatting string, check the GPIO specified\r\n");
+		printf(formatted_file_name);
+		return -1;
+	}
+	fp_pb1 = fopen(formatted_file_name, "r+");
+
+	// Open the value property file for PB2.
+	test_result = snprintf(formatted_file_name, (char_buf_size - 1), FILE_FORMAT_GPIO_PATH"/gpio%d"FILE_FORMAT_GPIO_VALUE, PB2_GPIO_OFFSET);
+	if ((test_result < 0) ||
+		(test_result == (char_buf_size - 1)))
+	{
+		printf("Error formatting string, check the GPIO specified\r\n");
+		printf(formatted_file_name);
+		return -1;
+	}
+	fp_pb2 = fopen(formatted_file_name, "r+");
+
+	// Open the value property file for PB3.
+	test_result = snprintf(formatted_file_name, (char_buf_size - 1), FILE_FORMAT_GPIO_PATH"/gpio%d"FILE_FORMAT_GPIO_VALUE, PB3_GPIO_OFFSET);
+	if ((test_result < 0) ||
+		(test_result == (char_buf_size - 1)))
+	{
+		printf("Error formatting string, check the GPIO specified\r\n");
+		printf(formatted_file_name);
+		return -1;
+	}
+	fp_pb3 = fopen(formatted_file_name, "r+");
+
+	// Open the value property file for PB4.
+	test_result = snprintf(formatted_file_name, (char_buf_size - 1), FILE_FORMAT_GPIO_PATH"/gpio%d"FILE_FORMAT_GPIO_VALUE, PB4_GPIO_OFFSET);
+	if ((test_result < 0) ||
+		(test_result == (char_buf_size - 1)))
+	{
+		printf("Error formatting string, check the GPIO specified\r\n");
+		printf(formatted_file_name);
+		return -1;
+	}
+	fp_pb4 = fopen(formatted_file_name, "r+");
+
+	// Open the value property file for PB5.
+	test_result = snprintf(formatted_file_name, (char_buf_size - 1), FILE_FORMAT_GPIO_PATH"/gpio%d"FILE_FORMAT_GPIO_VALUE, PB5_GPIO_OFFSET);
+	if ((test_result < 0) ||
+		(test_result == (char_buf_size - 1)))
+	{
+		printf("Error formatting string, check the GPIO specified\r\n");
+		printf(formatted_file_name);
+		return -1;
+	}
+	fp_pb5 = fopen(formatted_file_name, "r+");
 
 	// Read the current value of the PB0 GPIO input.
-	fscanf(fp_pb0, "%s", gpio_setting);
+	fscanf(fp_pb1, "%s", gpio_setting);
 
 	// Determine whether the 'N' push button is being depressed or not.
 	if (!strcmp(gpio_setting, "1"))
@@ -236,14 +412,14 @@ int set_next_input_pattern(void)
 		// Count LEDs up.
 		direction = 2;
 
-		fflush(fp_led0);
 		fflush(fp_led1);
 		fflush(fp_led2);
 		fflush(fp_led3);
+		fflush(fp_led4);
 	}
 
 	// Read the current value of the PB1 GPIO input.
-	fscanf(fp_pb1, "%s", gpio_setting);
+	fscanf(fp_pb2, "%s", gpio_setting);
 
 	// Determine whether the 'S' push button is being depressed or not.
 	if (!strcmp(gpio_setting, "1"))
@@ -251,14 +427,14 @@ int set_next_input_pattern(void)
 		// Count LEDs down.
 		direction = 3;
 
-		fflush(fp_led0);
 		fflush(fp_led1);
 		fflush(fp_led2);
 		fflush(fp_led3);
+		fflush(fp_led4);
 	}
 
 	// Read the current value of the PB2 GPIO input.
-	fscanf(fp_pb2, "%s", gpio_setting);
+	fscanf(fp_pb3, "%s", gpio_setting);
 
 	// Determine whether the 'E' push button is being depressed or not.
 	if (!strcmp(gpio_setting, "1"))
@@ -266,14 +442,14 @@ int set_next_input_pattern(void)
 		// Slide LED to the right.
 		direction = 4;
 
-		fflush(fp_led0);
 		fflush(fp_led1);
 		fflush(fp_led2);
 		fflush(fp_led3);
+		fflush(fp_led4);
 	}
 
 	// Read the current value of the PB3 GPIO input.
-	fscanf(fp_pb3, "%s", gpio_setting);
+	fscanf(fp_pb4, "%s", gpio_setting);
 
 	// Determine whether the 'W' push button is being depressed or not.
 	if (!strcmp(gpio_setting, "1"))
@@ -281,14 +457,14 @@ int set_next_input_pattern(void)
 		// Slide LED to the left.
 		direction = 5;
 
-		fflush(fp_led0);
 		fflush(fp_led1);
 		fflush(fp_led2);
 		fflush(fp_led3);
+		fflush(fp_led4);
 	}
 
 	// Read the current value of the PB4 GPIO input.
-	fscanf(fp_pb4, "%s", gpio_setting);
+	fscanf(fp_pb5, "%s", gpio_setting);
 
 	// Determine whether the 'C' push button is being depressed or not.
 	if (!strcmp(gpio_setting, "1"))
@@ -308,26 +484,29 @@ int set_next_input_pattern(void)
 			// Now turn all LEDs OFF.
 			direction = 0;
 		}
-		fwrite(&gpio_setting, sizeof(char), 1, fp_led0);
 		fwrite(&gpio_setting, sizeof(char), 1, fp_led1);
 		fwrite(&gpio_setting, sizeof(char), 1, fp_led2);
 		fwrite(&gpio_setting, sizeof(char), 1, fp_led3);
-		fflush(fp_led0);
+		fwrite(&gpio_setting, sizeof(char), 1, fp_led4);
 		fflush(fp_led1);
 		fflush(fp_led2);
 		fflush(fp_led3);
+		fflush(fp_led4);
 	}
 
+	// This test always passes since it requires user interaction.
+	test_result = 0;
+
 	// Close the GPIO value property files.
-	fclose(fp_led0);
 	fclose(fp_led1);
 	fclose(fp_led2);
 	fclose(fp_led3);
-	fclose(fp_pb0);
+	fclose(fp_led4);
 	fclose(fp_pb1);
 	fclose(fp_pb2);
 	fclose(fp_pb3);
 	fclose(fp_pb4);
+	fclose(fp_pb5);
 
 	return test_result;
 }
@@ -336,86 +515,97 @@ int main()
 {
 	char gpio_setting[5];
 	int test_result = 0;
+	const int char_buf_size = 80;
+	char formatted_file_name[char_buf_size];
 	FILE  *fp;
 
 	// Display the lab name in the application banner.
 	printf("*********************************************************\n");
 	printf("*                                                       *\n");
-	printf("*   MicroZed IO Carrier LED Tests                       *\n");
+	printf("*   PicoZed FMC V2 Carrier LED and Push Button Tests    *\n");
 	printf("*                                                       *\n");
 	printf("*********************************************************\n");
 
 	// Open the export file and write the PSGPIO number for each Pmod GPIO
 	// signal to the Linux sysfs GPIO export property, then close the file.
-	fp = fopen("/sys/class/gpio/export", "w");
+	fp = fopen(FILE_FORMAT_GPIO_PATH FILE_FORMAT_GPIO_EXPORT, "w");
 	if (fp == NULL)
 	{
 		printf("Error opening /sys/class/gpio/export node\n");
 	}
 	else
 	{
-		// Set the export property for GPIO54, which is gpio960 under Linux.
-		strcpy(gpio_setting, "960");
+		// Set the value property for the export to the GPIO number for LED1.
+		snprintf(gpio_setting, 4, "%d", LED1_GPIO_OFFSET);
 		fwrite(&gpio_setting, sizeof(char), 3, fp);
 		fflush(fp);
 
-		// Set the export property for GPIO55, which is gpio961 under Linux.
-		strcpy(gpio_setting, "961");
-		fwrite(&gpio_setting, sizeof(char), 3, fp);
-		fflush(fp);
-		
-		// Set the export property for GPIO56, which is gpio962 under Linux.
-		strcpy(gpio_setting, "962");
+		// Set the value property for the export to the GPIO number for LED2.
+		snprintf(gpio_setting, 4, "%d", LED2_GPIO_OFFSET);
 		fwrite(&gpio_setting, sizeof(char), 3, fp);
 		fflush(fp);
 		
-		// Set the export property for GPIO57, which is gpio963 under Linux.
-		strcpy(gpio_setting, "963");
+		// Set the value property for the export to the GPIO number for LED3.
+		snprintf(gpio_setting, 4, "%d", LED3_GPIO_OFFSET);
 		fwrite(&gpio_setting, sizeof(char), 3, fp);
 		fflush(fp);
 		
-		// Set the export property for GPIO58, which is gpio964 under Linux.
-		strcpy(gpio_setting, "964");
+		// Set the value property for the export to the GPIO number for LED4.
+		snprintf(gpio_setting, 4, "%d", LED4_GPIO_OFFSET);
+		fwrite(&gpio_setting, sizeof(char), 3, fp);
+		fflush(fp);
+		
+		// Set the value property for the export to the GPIO number for PB1.
+		snprintf(gpio_setting, 4, "%d", PB1_GPIO_OFFSET);
 		fwrite(&gpio_setting, sizeof(char), 3, fp);
 		fflush(fp);
 
-		// Set the export property for GPIO59, which is gpio965 under Linux.
-		strcpy(gpio_setting, "965");
+		// Set the value property for the export to the GPIO number for PB2.
+		snprintf(gpio_setting, 4, "%d", PB2_GPIO_OFFSET);
 		fwrite(&gpio_setting, sizeof(char), 3, fp);
 		fflush(fp);
 
-		// Set the export property for GPIO59, which is gpio966 under Linux.
-		strcpy(gpio_setting, "966");
+		// Set the value property for the export to the GPIO number for PB3.
+		snprintf(gpio_setting, 4, "%d", PB3_GPIO_OFFSET);
 		fwrite(&gpio_setting, sizeof(char), 3, fp);
 		fflush(fp);
 
-		// Set the export property for GPIO59, which is gpio967 under Linux.
-		strcpy(gpio_setting, "967");
+		// Set the value property for the export to the GPIO number for PB4.
+		snprintf(gpio_setting, 4, "%d", PB4_GPIO_OFFSET);
 		fwrite(&gpio_setting, sizeof(char), 3, fp);
 		fflush(fp);
 
-		// Set the export property for GPIO59, which is gpio968 under Linux.
-		strcpy(gpio_setting, "968");
+		// Set the value property for the export to the GPIO number for PB5.
+		snprintf(gpio_setting, 4, "%d", PB5_GPIO_OFFSET);
 		fwrite(&gpio_setting, sizeof(char), 3, fp);
 		fflush(fp);
 
 		fclose(fp);
 	}
 
-	// Check the direction property of the PSGPIO number for GPIO54.
-	fp = fopen("/sys/class/gpio/gpio960/direction", "r+");
+	// Check the direction property of the PSGPIO number for PB1.
+	test_result = snprintf(formatted_file_name, (char_buf_size - 1), FILE_FORMAT_GPIO_PATH"/gpio%d"FILE_FORMAT_GPIO_DIRECTION, PB1_GPIO_OFFSET);
+	if ((test_result < 0) ||
+		(test_result == (char_buf_size - 1)))
+	{
+		printf("Error formatting string, check the GPIO specified\r\n");
+		printf(formatted_file_name);
+		return -1;
+	}
+	fp = fopen(formatted_file_name, "r+");
 	if (fp == NULL)
 	{
-		printf("Error opening /sys/class/gpio/gpio960/direction node\n");
+		printf("Error opening "FILE_FORMAT_GPIO_PATH"/gpio%d"FILE_FORMAT_GPIO_DIRECTION" node\n", PB1_GPIO_OFFSET);
 	}
 	else
 	{
 		fscanf(fp, "%s", gpio_setting);
+		printf("gpio%d set as ", PB1_GPIO_OFFSET);
 
 		// Display whether the GPIO is set as input or output.
 		if (!strcmp(gpio_setting, "out"))
 		{
-			printf("gpio960 set as OUTPUT\n");
+			printf("OUTPUT\n");
 
 			// Set the direction property to "in".
 			strcpy(gpio_setting, "in");
@@ -424,25 +614,34 @@ int main()
 		}
 		else
 		{
-			printf("gpio960 set as INPUT\n");
+			printf("INPUT\n");
 		}
 		fclose(fp);
 	}
 
-	// Check the direction property of the PSGPIO number for GPIO55.
-	fp = fopen("/sys/class/gpio/gpio961/direction", "r+");
+	// Check the direction property of the PSGPIO number for PB2.
+	test_result = snprintf(formatted_file_name, (char_buf_size - 1), FILE_FORMAT_GPIO_PATH"/gpio%d"FILE_FORMAT_GPIO_DIRECTION, PB2_GPIO_OFFSET);
+	if ((test_result < 0) ||
+		(test_result == (char_buf_size - 1)))
+	{
+		printf("Error formatting string, check the GPIO specified\r\n");
+		printf(formatted_file_name);
+		return -1;
+	}
+	fp = fopen(formatted_file_name, "r+");
 	if (fp == NULL)
 	{
-		printf("Error opening /sys/class/gpio/gpio961/direction node\n");
+		printf("Error opening "FILE_FORMAT_GPIO_PATH"/gpio%d"FILE_FORMAT_GPIO_DIRECTION" node\n", PB2_GPIO_OFFSET);
 	}
 	else
 	{
 		fscanf(fp, "%s", gpio_setting);
+		printf("gpio%d set as ", PB2_GPIO_OFFSET);
 
 		// Display whether the GPIO is set as input or output.
 		if (!strcmp(gpio_setting, "out"))
 		{
-			printf("gpio961 set as OUTPUT\n");
+			printf("OUTPUT\n");
 
 			// Set the direction property to "in".
 			strcpy(gpio_setting, "in");
@@ -451,25 +650,34 @@ int main()
 		}
 		else
 		{
-			printf("gpio961 set as INPUT\n");
+			printf("INPUT\n");
 		}
 		fclose(fp);
 	}
 
-	// Check the direction property of the PSGPIO number for GPIO56.
-	fp = fopen("/sys/class/gpio/gpio962/direction", "r+");
+	// Check the direction property of the PSGPIO number for PB3.
+	test_result = snprintf(formatted_file_name, (char_buf_size - 1), FILE_FORMAT_GPIO_PATH"/gpio%d"FILE_FORMAT_GPIO_DIRECTION, PB3_GPIO_OFFSET);
+	if ((test_result < 0) ||
+		(test_result == (char_buf_size - 1)))
+	{
+		printf("Error formatting string, check the GPIO specified\r\n");
+		printf(formatted_file_name);
+		return -1;
+	}
+	fp = fopen(formatted_file_name, "r+");
 	if (fp == NULL)
 	{
-		printf("Error opening /sys/class/gpio/gpio962/direction node\n");
+		printf("Error opening "FILE_FORMAT_GPIO_PATH"/gpio%d"FILE_FORMAT_GPIO_DIRECTION" node\n", PB3_GPIO_OFFSET);
 	}
 	else
 	{
 		fscanf(fp, "%s", gpio_setting);
+		printf("gpio%d set as ", PB3_GPIO_OFFSET);
 
 		// Display whether the GPIO is set as input or output.
 		if (!strcmp(gpio_setting, "out"))
 		{
-			printf("gpio962 set as OUTPUT\n");
+			printf("OUTPUT\n");
 
 			// Set the direction property to "in".
 			strcpy(gpio_setting, "in");
@@ -478,25 +686,34 @@ int main()
 		}
 		else
 		{
-			printf("gpio962 set as INPUT\n");
+			printf("INPUT\n");
 		}
 		fclose(fp);
 	}
 
-	// Check the direction property of the PSGPIO number for GPIO57.
-	fp = fopen("/sys/class/gpio/gpio963/direction", "r+");
+	// Check the direction property of the PSGPIO number for PB4.
+	test_result = snprintf(formatted_file_name, (char_buf_size - 1), FILE_FORMAT_GPIO_PATH"/gpio%d"FILE_FORMAT_GPIO_DIRECTION, PB4_GPIO_OFFSET);
+	if ((test_result < 0) ||
+		(test_result == (char_buf_size - 1)))
+	{
+		printf("Error formatting string, check the GPIO specified\r\n");
+		printf(formatted_file_name);
+		return -1;
+	}
+	fp = fopen(formatted_file_name, "r+");
 	if (fp == NULL)
 	{
-		printf("Error opening /sys/class/gpio/gpio963/direction node\n");
+		printf("Error opening "FILE_FORMAT_GPIO_PATH"/gpio%d"FILE_FORMAT_GPIO_DIRECTION" node\n", PB4_GPIO_OFFSET);
 	}
 	else
 	{
 		fscanf(fp, "%s", gpio_setting);
+		printf("gpio%d set as ", PB4_GPIO_OFFSET);
 
 		// Display whether the GPIO is set as input or output.
 		if (!strcmp(gpio_setting, "out"))
 		{
-			printf("gpio963 set as OUTPUT\n");
+			printf("OUTPUT\n");
 
 			// Set the direction property to "in".
 			strcpy(gpio_setting, "in");
@@ -505,25 +722,34 @@ int main()
 		}
 		else
 		{
-			printf("gpio963 set as INPUT\n");
+			printf("INPUT\n");
 		}
 		fclose(fp);
 	}
 
-	// Check the direction property of the PSGPIO number for GPIO58.
-	fp = fopen("/sys/class/gpio/gpio964/direction", "r+");
+	// Check the direction property of the PSGPIO number for PB5.
+	test_result = snprintf(formatted_file_name, (char_buf_size - 1), FILE_FORMAT_GPIO_PATH"/gpio%d"FILE_FORMAT_GPIO_DIRECTION, PB5_GPIO_OFFSET);
+	if ((test_result < 0) ||
+		(test_result == (char_buf_size - 1)))
+	{
+		printf("Error formatting string, check the GPIO specified\r\n");
+		printf(formatted_file_name);
+		return -1;
+	}
+	fp = fopen(formatted_file_name, "r+");
 	if (fp == NULL)
 	{
-		printf("Error opening /sys/class/gpio/gpio964/direction node\n");
+		printf("Error opening "FILE_FORMAT_GPIO_PATH"/gpio%d"FILE_FORMAT_GPIO_DIRECTION" node\n", PB5_GPIO_OFFSET);
 	}
 	else
 	{
 		fscanf(fp, "%s", gpio_setting);
+		printf("gpio%d set as ", PB5_GPIO_OFFSET);
 
 		// Display whether the GPIO is set as input or output.
 		if (!strcmp(gpio_setting, "out"))
 		{
-			printf("gpio964 set as OUTPUT\n");
+			printf("OUTPUT\n");
 
 			// Set the direction property to "in".
 			strcpy(gpio_setting, "in");
@@ -532,25 +758,34 @@ int main()
 		}
 		else
 		{
-			printf("gpio964 set as INPUT\n");
+			printf("INPUT\n");
 		}
 		fclose(fp);
 	}
 
-	// Check the direction property of the PSGPIO number for GPIO59.
-	fp = fopen("/sys/class/gpio/gpio965/direction", "r+");
+	// Check the direction property of the PSGPIO number for LED1.
+	test_result = snprintf(formatted_file_name, (char_buf_size - 1), FILE_FORMAT_GPIO_PATH"/gpio%d"FILE_FORMAT_GPIO_DIRECTION, LED1_GPIO_OFFSET);
+	if ((test_result < 0) ||
+		(test_result == (char_buf_size - 1)))
+	{
+		printf("Error formatting string, check the GPIO specified\r\n");
+		printf(formatted_file_name);
+		return -1;
+	}
+	fp = fopen(formatted_file_name, "r+");
 	if (fp == NULL)
 	{
-		printf("Error opening /sys/class/gpio/gpio965/direction node\n");
+		printf("Error opening "FILE_FORMAT_GPIO_PATH"/gpio%d"FILE_FORMAT_GPIO_DIRECTION" node\n", LED1_GPIO_OFFSET);
 	}
 	else
 	{
 		fscanf(fp, "%s", gpio_setting);
+		printf("gpio%d set as ", LED1_GPIO_OFFSET);
 
 		// Display whether the GPIO is set as input or output.
 		if (!strcmp(gpio_setting, "in"))
 		{
-			printf("gpio965 set as INPUT\n");
+			printf("INPUT\n");
 			
 			// Set the direction property to "out".
 			strcpy(gpio_setting, "out");
@@ -559,25 +794,34 @@ int main()
 		}
 		else
 		{
-			printf("gpio965 set as OUTPUT\n");
+			printf("OUTPUT\n");
 		}
 		fclose(fp);
 	}
 	
-	// Check the direction property of the PSGPIO number for GPIO59.
-	fp = fopen("/sys/class/gpio/gpio966/direction", "r+");
+	// Check the direction property of the PSGPIO number for LED2.
+	test_result = snprintf(formatted_file_name, (char_buf_size - 1), FILE_FORMAT_GPIO_PATH"/gpio%d"FILE_FORMAT_GPIO_DIRECTION, LED2_GPIO_OFFSET);
+	if ((test_result < 0) ||
+		(test_result == (char_buf_size - 1)))
+	{
+		printf("Error formatting string, check the GPIO specified\r\n");
+		printf(formatted_file_name);
+		return -1;
+	}
+	fp = fopen(formatted_file_name, "r+");
 	if (fp == NULL)
 	{
-		printf("Error opening /sys/class/gpio/gpio966/direction node\n");
+		printf("Error opening "FILE_FORMAT_GPIO_PATH"/gpio%d"FILE_FORMAT_GPIO_DIRECTION" node\n", LED2_GPIO_OFFSET);
 	}
 	else
 	{
 		fscanf(fp, "%s", gpio_setting);
+		printf("gpio%d set as ", LED2_GPIO_OFFSET);
 
 		// Display whether the GPIO is set as input or output.
 		if (!strcmp(gpio_setting, "in"))
 		{
-			printf("gpio966 set as INPUT\n");
+			printf("INPUT\n");
 			
 			// Set the direction property to "out".
 			strcpy(gpio_setting, "out");
@@ -586,25 +830,34 @@ int main()
 		}
 		else
 		{
-			printf("gpio965 set as OUTPUT\n");
+			printf("OUTPUT\n");
 		}
 		fclose(fp);
 	}
 
-	// Check the direction property of the PSGPIO number for GPIO60.
-	fp = fopen("/sys/class/gpio/gpio967/direction", "r+");
+	// Check the direction property of the PSGPIO number for LED3.
+	test_result = snprintf(formatted_file_name, (char_buf_size - 1), FILE_FORMAT_GPIO_PATH"/gpio%d"FILE_FORMAT_GPIO_DIRECTION, LED3_GPIO_OFFSET);
+	if ((test_result < 0) ||
+		(test_result == (char_buf_size - 1)))
+	{
+		printf("Error formatting string, check the GPIO specified\r\n");
+		printf(formatted_file_name);
+		return -1;
+	}
+	fp = fopen(formatted_file_name, "r+");
 	if (fp == NULL)
 	{
-		printf("Error opening /sys/class/gpio/gpio967/direction node\n");
+		printf("Error opening "FILE_FORMAT_GPIO_PATH"/gpio%d"FILE_FORMAT_GPIO_DIRECTION" node\n", LED3_GPIO_OFFSET);
 	}
 	else
 	{
 		fscanf(fp, "%s", gpio_setting);
+		printf("gpio%d set as ", LED3_GPIO_OFFSET);
 
 		// Display whether the GPIO is set as input or output.
 		if (!strcmp(gpio_setting, "in"))
 		{
-			printf("gpio967 set as INPUT\n");
+			printf("INPUT\n");
 
 			// Set the direction property to "out".
 			strcpy(gpio_setting, "out");
@@ -613,25 +866,34 @@ int main()
 		}
 		else
 		{
-			printf("gpio967 set as OUTPUT\n");
+			printf("OUTPUT\n");
 		}
 		fclose(fp);
 	}
 
-	// Check the direction property of the PSGPIO number for GPIO61.
-	fp = fopen("/sys/class/gpio/gpio968/direction", "r+");
+	// Check the direction property of the PSGPIO number for LED4.
+	test_result = snprintf(formatted_file_name, (char_buf_size - 1), FILE_FORMAT_GPIO_PATH"/gpio%d"FILE_FORMAT_GPIO_DIRECTION, LED4_GPIO_OFFSET);
+	if ((test_result < 0) ||
+		(test_result == (char_buf_size - 1)))
+	{
+		printf("Error formatting string, check the GPIO specified\r\n");
+		printf(formatted_file_name);
+		return -1;
+	}
+	fp = fopen(formatted_file_name, "r+");
 	if (fp == NULL)
 	{
-		printf("Error opening /sys/class/gpio/gpio968/direction node\n");
+		printf("Error opening "FILE_FORMAT_GPIO_PATH"/gpio%d"FILE_FORMAT_GPIO_DIRECTION" node\n", LED4_GPIO_OFFSET);
 	}
 	else
 	{
 		fscanf(fp, "%s", gpio_setting);
+		printf("gpio%d set as ", LED4_GPIO_OFFSET);
 
 		// Display whether the GPIO is set as input or output.
 		if (!strcmp(gpio_setting, "in"))
 		{
-			printf("gpio968 set as INPUT\n");
+			printf("INPUT\n");
 
 			// Set the direction property to "out".
 			strcpy(gpio_setting, "out");
@@ -640,13 +902,16 @@ int main()
 		}
 		else
 		{
-			printf("gpio968 set as OUTPUT\n");
+			printf("OUTPUT\n");
 		}
 		fclose(fp);
 	}
 
 	// Perform LED pattern generation.
 	printf("LED Pattern Generation on PicoZed FMC2 Carrier\n");
+
+	// This test always passes since it requires user interaction.
+	test_result = 0;
 
 	while (test_result == 0)
 	{

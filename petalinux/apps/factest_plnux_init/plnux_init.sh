@@ -6,7 +6,7 @@ FACTORY_TEST_SCRIPT=/home/root/factory_test.sh
 echo " "
 echo "******************************************************************"
 echo "***                                                            ***"
-echo "***    Avnet PicoZed Petalinux FMC Carrier Build V1.1          ***"
+echo "***    Avnet PicoZed Petalinux FMC Carrier Build V1.2          ***"
 echo "***                                                            ***"
 echo "******************************************************************"
 echo "***                                                            ***"
