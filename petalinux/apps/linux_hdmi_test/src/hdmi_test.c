@@ -79,6 +79,14 @@ int run_hdmi_test(){
     	 pass_fail = -1;
     }
 
+    // Configure the HDMI controller to accept the 720p pattern being generated.
+    ret = configure_hdmi(&demo);
+	if (ret != 0){
+		 printf("validate_hdmi failed! Test ABORT!\n\r");
+		 pass_fail = -1;
+	}
+
+    // Run the hardware validation test for HDMI.
     ret = validate_hdmi(&demo);
     if (ret != 0){
     	 printf("validate_hdmi failed! Test ABORT!\n\r");

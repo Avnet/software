@@ -80,6 +80,7 @@ struct struct_iic_eeprom_demo_t
 typedef struct struct_iic_eeprom_demo_t iic_eeprom_demo_t;
 
 int hdmi_demo_init(iic_eeprom_demo_t *pDemo);
+int configure_hdmi(iic_eeprom_demo_t *pDemo);
 int validate_hdmi(iic_eeprom_demo_t *pDemo);
 
 #endif // __HDMI_DEMO_H__

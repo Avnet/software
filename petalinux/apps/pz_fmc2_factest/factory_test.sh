@@ -42,7 +42,11 @@
 # 
 #  Dependencies:        
 #
-#  Revision:            Apr 05, 2016: 1.00 Initial version
+#  Revision:            Apr 05, 2016: 1.0 Initial version
+#                       Apr 18, 2016: 1.2 Updated GPIO connections to match
+#                                         connection order in HDL repo
+#                       Apr 21, 2016: 1.3 Updated HDMI test to support test
+#                                         pattern generator output.
 # 
 # ----------------------------------------------------------------------------
 #!/etc/sh
@@ -322,7 +326,7 @@ sleep 3
 	echo " "
 	echo "******************************************************************"
 	echo "***                                                            ***"
-	echo "***   PicoZed 7020 + FMC2 Factory Test V1.0 Complete           ***"
+	echo "***   PicoZed 7020 + FMC2 Factory Test V1.3 Complete           ***"
 	echo "***                                                            ***"
 
 if [ $FMC_LOOPBACK_TEST_RESULT == "0" ]; 
