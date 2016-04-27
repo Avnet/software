@@ -36,7 +36,7 @@ For design support please contact your local Avnet/Silica FAE or visit one of ou
 
 ###I am an engineer at Avnet, how can I submit code changes?
 
-- Code changes to the software repository can be pushed directly to the Github **hdl** repo. 
+- Code changes to the software repository can be pushed directly to the Github [software] repo. 
 
 - Please contact the Avnet Design Group for further details.
 
@@ -46,3 +46,4 @@ For design support please contact your local Avnet/Silica FAE or visit one of ou
 [Avnet Technical Community]:http://community.em.avnet.com/
 [Zed Community Support Forums]:http://www.picozed.org/forum
 [legal]:https://github.com/Avnet/legal
+[software]:https://github.com/Avnet/software
