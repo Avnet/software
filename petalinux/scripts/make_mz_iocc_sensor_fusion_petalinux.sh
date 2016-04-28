@@ -28,33 +28,33 @@
 # 
 # ----------------------------------------------------------------------------
 # 
-#  Create Date:         Mar 26, 2016
-#  Design Name:         MicroZed PetaLinux BSP Generator
-#  Module Name:         make_mz_petalinux_bsp.tcl
-#  Project Name:        MicroZed PetaLinux BSP Generator
+#  Create Date:         Mar 27, 2016
+#  Design Name:         MicroZed Sensor Fusion PetaLinux BSP Generator
+#  Module Name:         make_mz_iocc_sensor_fusion_petalinux.tcl
+#  Project Name:        MicroZed Sensor Fusion PetaLinux BSP Generator
 #  Target Devices:      Xilinx Zynq-7000
 #  Hardware Boards:     MicroZed SOM
 # 
 #  Tool versions:       Xilinx Vivado 2015.2
 # 
-#  Description:         Build Script for MicroZed PetaLinux BSP HW Platform
+#  Description:         Build Script for MicroZed Sensor Fusion PetaLinux BSP
 # 
 #  Dependencies:        None
 #
-#  Revision:            Mar 26, 2016: 1.00 Initial version
+#  Revision:            Mar 27, 2016: 1.00 Initial version
 # 
 # ----------------------------------------------------------------------------
 
 #!/bin/bash
 
 # Set global variables here.
-BUILD_BOOT_QSPI_OPTION=yes
+BUILD_BOOT_QSPI_OPTION=no
 BUILD_BOOT_EMMC_OPTION=no
 BUILD_BOOT_EMMC_NO_BIT_OPTION=no
 BUILD_BOOT_SD_NO_BIT_OPTION=no
 FSBL_PROJECT_NAME=zynq_fsbl_app
-HDL_HARDWARE_NAME=mz_petalinux_hw
-HDL_PROJECT_NAME=mz_petalinux
+HDL_HARDWARE_NAME=mz_iocc_sensor_fusion_hw
+HDL_PROJECT_NAME=mz_iocc_sensor_fusion
 HDL_PROJECTS_FOLDER=../../../hdl/Projects
 HDL_SCRIPTS_FOLDER=../../../hdl/Scripts
 PETALINUX_APPS_FOLDER=../../../software/petalinux/apps
@@ -62,14 +62,6 @@ PETALINUX_CONFIGS_FOLDER=../../../software/petalinux/configs
 PETALINUX_PROJECTS_FOLDER=../../../software/petalinux/projects
 PETALINUX_SCRIPTS_FOLDER=../../../software/petalinux/scripts
 START_FOLDER=`pwd`
-
-source_tools_settings ()
-{
-  # Source the tools settings scripts so that both Vivado and PetaLinux can 
-  # be used throughout this build script.
-  source /opt/Xilinx/Vivado/2015.2/settings64.sh
-  source /opt/petalinux-v2015.2.1-final/settings.sh
-}
 
 petalinux_project_restore_boot_config ()
 {
@@ -250,7 +242,7 @@ create_petalinux_bsp ()
   echo " "
 
   cp -f ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}/${HDL_PROJECT_NAME}.runs/impl_1/${HDL_PROJECT_NAME}_wrapper.bit \
-  ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/hw_platform/system_wrapper.bit
+  ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/hw_platform/${HDL_HARDWARE_NAME}.bit
 
   # Import the First Stage Boot Loader application executable from the SDK
   # workspace FSBL application folder.
@@ -306,13 +298,21 @@ create_petalinux_bsp ()
   cp -rf ${START_FOLDER}/${PETALINUX_APPS_FOLDER}/force_usb_power/* \
   ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/components/apps/force_usb_power
 
-  # Create a PetaLinux application named media.
-  petalinux-create --type apps --name media --enable
+  # Create a PetaLinux application named linux_temperature_client.
+  petalinux-create --type apps --name linux_temperature_client --enable
 
-  # Copy the media folder over to the the media application
-  # folder.
-  cp -rf ${START_FOLDER}/${PETALINUX_APPS_FOLDER}/media/* \
-  ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/components/apps/media/
+  # Copy the linux_temperature_client application information over to the 
+  # linux_temperature_client application folder.
+  cp -rf ${START_FOLDER}/${PETALINUX_APPS_FOLDER}/linux_temperature_client/* \
+  ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/components/apps/linux_temperature_client
+
+  # Create a PetaLinux application named sensor_fusion_init.
+  petalinux-create --type apps --name sensor_fusion_init --enable
+
+  # Copy the sensor_fusion_init application information over to the 
+  # sensor_fusion_init application folder.
+  cp -rf ${START_FOLDER}/${PETALINUX_APPS_FOLDER}/sensor_fusion_init/* \
+  ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/components/apps/sensor_fusion_init
 
   # Create a PetaLinux application named uWeb_custom.
   petalinux-create --type apps --name uWeb_custom --enable
@@ -336,26 +336,42 @@ create_petalinux_bsp ()
   # Overwrite the rootfs component config with the revision controlled source
   # config.
   echo " "
+  echo "Overwriting kernel config ..."
+  echo " "
+  cp -rf ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/kernel/config.mz_sf \
+  ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/subsystems/linux/configs/kernel/config
+
+  # Overwrite the rootfs component config with the revision controlled source
+  # config.
+  echo " "
   echo "Overwriting rootfs config ..."
   echo " "
-  cp -rf ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/rootfs/config \
-  ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/subsystems/linux/configs/rootfs/
+  cp -rf ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/rootfs/config.mz_sf \
+  ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/subsystems/linux/configs/rootfs/config
 
   # Overwrite the top level devicetree source with the revision controlled
   # source file.
   echo " "
   echo "Overwriting top level devicetree source ..."
   echo " "
-  cp -rf ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/device-tree/system-top.dts \
-  ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/subsystems/linux/configs/device-tree/
+  cp -rf ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/device-tree/system-top.dts.mz_sf \
+  ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/subsystems/linux/configs/device-tree/system-top.dts
 
   # Overwrite the config level devicetree source with the revision controlled
   # source file.
   echo " "
   echo "Overwriting config level devicetree source ..."
   echo " "
-  cp -rf ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/device-tree/system-conf.dtsi \
-  ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/subsystems/linux/configs/device-tree/
+  cp -rf ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/device-tree/system-conf.dtsi.mz_sf \
+  ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/subsystems/linux/configs/device-tree/system-conf.dtsi
+
+  # Overwrite the PL level devicetree source with the revision controlled
+  # source file.
+  echo " "
+  echo "Overwriting PL level devicetree source ..."
+  echo " "
+  cp -rf ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/device-tree/pl.dtsi.mz_sf \
+  ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/subsystems/linux/configs/device-tree/pl.dtsi
 
   # Prepare to modify project configurations.
   petalinux_project_save_boot_config
@@ -374,7 +390,7 @@ create_petalinux_bsp ()
     petalinux-build 
 
     # Create boot image.
-    petalinux-package --boot --fsbl hw_platform/${FSBL_PROJECT_NAME}.elf --fpga hw_platform/system_wrapper.bit --uboot --force
+    petalinux-package --boot --fsbl hw_platform/${FSBL_PROJECT_NAME}.elf --fpga hw_platform/${HDL_HARDWARE_NAME}.bit --uboot --force
 
     # Copy the boot.bin file and name the new file BOOT_QSPI.bin
     cp ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/images/linux/BOOT.BIN \
@@ -399,7 +415,7 @@ create_petalinux_bsp ()
     petalinux-build 
 
     # Create boot image.
-    petalinux-package --boot --fsbl hw_platform/${FSBL_PROJECT_NAME}.elf --fpga hw_platform/system_wrapper.bit --uboot --force
+    petalinux-package --boot --fsbl hw_platform/${FSBL_PROJECT_NAME}.elf --fpga hw_platform/${HDL_HARDWARE_NAME}.bit --uboot --force
 
     # Copy the boot.bin file and name the new file BOOT_EMMC.bin
     cp ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/images/linux/BOOT.BIN \
@@ -434,7 +450,7 @@ create_petalinux_bsp ()
     # Create a temporary Vivado TCL script which take the standard bitstream 
     # file format and modify it to allow u-boot to load it into the 
     # programmable logic on the Zynq device via PCAP interface.
-    echo "write_cfgmem -format bin -interface spix1 -loadbit \"up 0x0 hw_platform/system_wrapper.bit\" -force images/linux/system.bit.bin" > swap_bits.tcl
+    echo "write_cfgmem -format bin -interface spix1 -loadbit \"up 0x0 hw_platform/${HDL_HARDWARE_NAME}.bit\" -force images/linux/system.bit.bin" > swap_bits.tcl
     
     # Launch vivado in batch mode to clean output products from the hardware platform.
     vivado -mode batch -source swap_bits.tcl
@@ -471,7 +487,7 @@ create_petalinux_bsp ()
     # Create a temporary Vivado TCL script which take the standard bitstream 
     # file format and modify it to allow u-boot to load it into the 
     # programmable logic on the Zynq device via PCAP interface.
-    echo "write_cfgmem -format bin -interface spix1 -loadbit \"up 0x0 hw_platform/system_wrapper.bit\" -force images/linux/system.bit.bin" > swap_bits.tcl
+    echo "write_cfgmem -format bin -interface spix1 -loadbit \"up 0x0 hw_platform/${HDL_HARDWARE_NAME}.bit\" -force images/linux/system.bit.bin" > swap_bits.tcl
     
     # Launch vivado in batch mode to clean output products from the hardware platform.
     vivado -mode batch -source swap_bits.tcl
@@ -490,11 +506,18 @@ create_petalinux_bsp ()
   # Build PetaLinux project.
   petalinux-build 
 
+  # Force creation of the /run/media folder needed to mount MMC devices on the 
+  # target system.
+  echo " "
+  echo "Creating /run/media within rootfs ..."
+  echo " "
+  mkdir ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/build/linux/rootfs/targetroot/run/media
+
   # Build PetaLinux project to force rootfs changes to be packaged.
-  #petalinux-build -c rootfs
+  petalinux-build -c rootfs
 
   # Create boot image.
-  petalinux-package --boot --fsbl hw_platform/${FSBL_PROJECT_NAME}.elf --fpga hw_platform/system_wrapper.bit --uboot --force
+  petalinux-package --boot --fsbl hw_platform/${FSBL_PROJECT_NAME}.elf --fpga hw_platform/${HDL_HARDWARE_NAME}.bit --uboot --force
 
   # Copy the boot.bin file and name the new file BOOT_SD.bin
   cp ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/images/linux/BOOT.BIN \
@@ -515,7 +538,7 @@ create_petalinux_bsp ()
   cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/
 
   # Package the bitstream within the PetaLinux pre-built folder.
-  petalinux-package --prebuilt --fpga hw_platform/system_wrapper.bit
+  petalinux-package --prebuilt --fpga hw_platform/${HDL_HARDWARE_NAME}.bit
 
   # Copy the template Makefile over to the PetaLinux project folder. This 
   # Makefile template can later be customized as desired. 
@@ -525,7 +548,7 @@ create_petalinux_bsp ()
   # Rename the pre-built bitstream file to download.bit so that the default 
   # format for the petalinux-boot command over jtag will not need the bit file 
   # specified explicitly.
-  mv -f pre-built/linux/implementation/system_wrapper.bit \
+  mv -f pre-built/linux/implementation/${HDL_HARDWARE_NAME}.bit \
   pre-built/linux/implementation/download.bit
 
   # Change to PetaLinux projects folder.
@@ -601,6 +624,11 @@ main_make_function ()
   # name specified in the PETALINUX_PROJECT_NAME variable can be distributed
   # for use to others.
 
+  # Source the tools settings scripts so that both Vivado and PetaLinux can 
+  # be used throughout this build script.
+  source /opt/Xilinx/Vivado/2015.2/settings64.sh
+  source /opt/petalinux-v2015.2.1-final/settings.sh
+
   #
   # Create the hardware platforms for the supported targets.
   #
@@ -615,21 +643,17 @@ main_make_function ()
   #
   # Create the PetaLinux BSP for the MZ7010_FMCCC target.
   #
-  HDL_BOARD_NAME=MZ7010_FMCCC
-  PETALINUX_PROJECT_NAME=mz_7010_2015_2_1
+  HDL_BOARD_NAME=MZ7010_IOCC
+  PETALINUX_PROJECT_NAME=mz_7010_sf_2015_2_1
   create_petalinux_bsp
 
   #
   # Create the PetaLinux BSP for the MZ7020_FMCCC target.
   #
-#  HDL_BOARD_NAME=MZ7020_FMCCC
-#  PETALINUX_PROJECT_NAME=mz_7020_2015_2_1
+#  HDL_BOARD_NAME=MZ7020_IOCC
+#  PETALINUX_PROJECT_NAME=mz_7020_sf_2015_2_1
 #  create_petalinux_bsp
 }
-
-# First source any tools scripts to setup the environment needed to call both
-# PetaLinux and Vivado from this make script.
-source_tools_settings
 
 # Call the main_make_function declared above to start building everything.
 main_make_function

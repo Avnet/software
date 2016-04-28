@@ -1,0 +1,62 @@
+/dts-v1/;
+/include/ "system-conf.dtsi"
+/ {
+	aliases {
+		axi_quad_spi_0 = &axi_quad_spi_0;
+	};
+};
+
+&gem0 {
+	phy-handle = <&phy0>;
+	phy-mode = "rgmii-id";
+
+	ps7_ethernet_0_mdio: mdio {
+		status = "disabled";
+	};	
+
+	phy0: phy@0 {
+		compatible = "marvell,88e1510";
+		device_type = "ethernet-phy";
+		reg = <0x0>;
+		marvell,reg-init = <3 16 0xff00 0x1e 3 17 0xfff0 0x00>;
+	};
+};
+
+&qspi {
+	flash0: flash@0 {
+		compatible = "micron,n25q128a13";
+	};
+};
+
+/{
+    usb_phy0:usb_phy@0 {
+        compatible="usb-nop-xceiv";
+        #phy-cells = <0>;
+    };
+};
+
+
+&usb0 {
+	dr_mode = "otg";
+	usb-phy = <&usb_phy0>;
+};
+
+&axi_quad_spi_0 {
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	xlnx,family = "zynq";
+	xlnx,fifo-depth = <0x10>;
+	xlnx,fifo-exist = <0x1>;
+	xlnx,num-ss-bits = <0x1>;
+	xlnx,num-transfer-bits = <0x8>;
+	xlnx,sck-ratio = <0x20>;
+
+	temperature:spidev@0 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		compatible = "spidev";
+		spi-max-frequency = <3125000>;
+		reg = <0>;   // Chip Select 0
+	};
+};
