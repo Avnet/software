@@ -1,15 +1,17 @@
-CC=gcc
-CFLAGS=-Wall
-OUT=hts221_sensor
-OBJS=hts221_sensor.o
+CC = gcc
+CFLAGS = -Wall
+OUT = hts221_sensor
+SRCS := $(wildcard *.c)
+OBJS := ${SRCS:.c=.o}
+DEPS := $(wildcard *.h)
 
-$(OUT): hts221_sensor.o
-        $(CC) $(CFLAGS) -o $(OUT) $(OBJS)
+$(OUT): $(OBJS)
+	$(CC) $(CFLAGS) -o $(OUT) $(OBJS)
 
-hts221_sensor.o: hts221_sensor.c
-        $(CC) $(CFLAGS) -c hts221_sensor.c -o hts221_sensor.o
+%o:%c $(DEPS)
+	$(CC) $(CFLAGS) -c $< -o $@
 
 .PHONY: clean
 
 clean:
-        rm -rf *.o $(OUT)
+	rm -rf *.o $(OUT)
