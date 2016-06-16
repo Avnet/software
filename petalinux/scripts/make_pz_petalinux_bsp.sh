@@ -35,13 +35,14 @@
 #  Target Devices:      Xilinx Zynq-7000
 #  Hardware Boards:     PicoZed SOM
 # 
-#  Tool versions:       Xilinx Vivado 2015.2
+#  Tool versions:       Xilinx Vivado 2015.4
 # 
 #  Description:         Build Script for PicoZed PetaLinux BSP HW Platform
 # 
 #  Dependencies:        None
 #
 #  Revision:            Feb 08, 2016: 1.00 Initial version
+#  Revision:            May 12, 2016: 1.01 Updated for 2015.4 PetaLinux tools 
 # 
 # ----------------------------------------------------------------------------
 
@@ -67,8 +68,8 @@ source_tools_settings ()
 {
   # Source the tools settings scripts so that both Vivado and PetaLinux can 
   # be used throughout this build script.
-  source /opt/Xilinx/Vivado/2015.2/settings64.sh
-  source /opt/petalinux-v2015.2.1-final/settings.sh
+  source /opt/Xilinx/Vivado/2015.4/settings64.sh
+  source /opt/petalinux-v2015.4-final/settings.sh
 }
 
 petalinux_project_restore_boot_config ()
@@ -285,6 +286,27 @@ create_petalinux_bsp ()
     ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/subsystems/linux/config
   fi
 
+  # Create a PetaLinux application named httpd_content.
+  petalinux-create --type apps --name httpd_content --enable
+
+  # Copy the httpd_content application information over to the httpd_content 
+  # application folder.
+  cp -rf ${START_FOLDER}/${PETALINUX_APPS_FOLDER}/httpd_content/* \
+  ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/components/apps/httpd_content
+
+  # Create a PetaLinux application named iperf3.
+  petalinux-create --type apps --name iperf3 --enable
+
+  # Copy the iperf3 application information over to the iperf3 
+  # application folder.
+  cp -rf ${START_FOLDER}/${PETALINUX_APPS_FOLDER}/iperf3/* \
+  ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/components/apps/iperf3
+
+  # Copy the iperf3 application binary over to the the iperf3 application
+  # folder.
+  cp -f ~/demo/iperf/src/iperf3 \
+  ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/components/apps/iperf3/
+
   # Create a PetaLinux application named weaved.
   petalinux-create --type apps --name weaved --enable
 
@@ -297,41 +319,6 @@ create_petalinux_bsp ()
   # folder.
   cp -f ~/demo/weaved/weavedOEM/weavedConnectd.arm7l \
   ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/components/apps/weaved/weavedOEM/
-
-  # Create a PetaLinux application named force_usb_power.
-  petalinux-create --type apps --name force_usb_power --enable
-
-  # Copy the force_usb_power application information over to the force_usb_power 
-  # application folder.
-  cp -rf ${START_FOLDER}/${PETALINUX_APPS_FOLDER}/force_usb_power/* \
-  ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/components/apps/force_usb_power
-
-  # Create a PetaLinux application named media.
-  petalinux-create --type apps --name media --enable
-
-  # Copy the media folder over to the the media application
-  # folder.
-  cp -rf ${START_FOLDER}/${PETALINUX_APPS_FOLDER}/media/* \
-  ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/components/apps/media/
-
-  # Create a PetaLinux application named uWeb_custom.
-  petalinux-create --type apps --name uWeb_custom --enable
-
-  # Copy the uWeb_custom application information over to the uWeb_custom 
-  # application folder.
-  cp -rf ${START_FOLDER}/${PETALINUX_APPS_FOLDER}/uWeb_custom/* \
-  ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/components/apps/uWeb_custom
-
-  # Overwrite the defult web page graphic for target board with the image 
-  # being targeted, if a replacement is available.
-  if [ -f ~/demo/img/${HDL_BOARD_NAME}.png ] 
-  then
-    echo " "
-    echo "Overwriting board photo within uWeb_custom app data ..."
-    echo " "
-    cp -rf ~/demo/img/${HDL_BOARD_NAME}.png \
-    ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/components/apps/uWeb_custom/sp605-2.png
-  fi
 
   # Overwrite the rootfs component config with the revision controlled source
   # config.
@@ -613,28 +600,28 @@ main_make_function ()
   # Create the PetaLinux BSP for the PZ7010_FMC2 target.
   #
   HDL_BOARD_NAME=PZ7010_FMC2
-  PETALINUX_PROJECT_NAME=pz_7010_2015_2_1
+  PETALINUX_PROJECT_NAME=pz_7010_2015_4
   create_petalinux_bsp
 
   #
   # Create the PetaLinux BSP for the PZ7015_FMC2 target.
   #
   HDL_BOARD_NAME=PZ7015_FMC2
-  PETALINUX_PROJECT_NAME=pz_7015_2015_2_1
+  PETALINUX_PROJECT_NAME=pz_7015_2015_4
   create_petalinux_bsp
 
   #
   # Create the PetaLinux BSP for the PZ7020_FMC2 target.
   #
   HDL_BOARD_NAME=PZ7020_FMC2
-  PETALINUX_PROJECT_NAME=pz_7020_2015_2_1
+  PETALINUX_PROJECT_NAME=pz_7020_2015_4
   create_petalinux_bsp
 
   #
   # Create the PetaLinux BSP for the PZ7030_FMC2 target.
   #
   HDL_BOARD_NAME=PZ7030_FMC2
-  PETALINUX_PROJECT_NAME=pz_7030_2015_2_1
+  PETALINUX_PROJECT_NAME=pz_7030_2015_4
   create_petalinux_bsp
 }
 

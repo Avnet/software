@@ -1,0 +1,83 @@
+body
+{
+  background-color: #FFFFFF;
+  margin: 0em;
+  margin-top: 0em;
+}
+
+body, tr, td, p, input, ul, ol, li, pre
+{
+  font-family: Arial, Helvetica, sans-serif;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 10pt;
+  color: #000000;
+}
+
+a
+{
+  font-family: Arial, Helvetica, sans-serif;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 10pt;
+  color: #0000FF;
+}
+
+h1
+{
+  background-color: #C63232;
+  font-family: Arial, Helvetica, sans-serif;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 20pt;
+  color: #000000;
+}
+
+h2
+{
+  background-color: #FF9999;
+  font-family: Arial, Helvetica, sans-serif;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 14pt;
+  color: #000000;
+}
+
+a#logo_avnet_link
+{
+  padding-left:10px;
+  padding-right:10px;
+  padding-top:10px;
+}
+
+div#logo_avnet_container
+{
+  background-color:	#FFFFFF;
+  border: 3px groove gray;
+  float: left;
+  margin: 0.5em;
+  position:	relative;
+  vertical-align: middle;
+}
+
+div#panel_title
+{
+  background-color:	#FFFFFF;
+  border: 3px groove gray;
+  color: gray;
+  margin: 0.5em;
+  font-size: 20pt;
+  font-weight: bold;
+  padding: 0.5em;
+  position:	relative;
+  vertical-align: middle;
+}
+
+img#logo_avnet_img
+{
+  background-color:	#FFFFFF;
+  border: none;
+  margin: 0.5em;
+  position:	relative;
+  vertical-align: middle;
+}
