@@ -1,5 +1,5 @@
 --- platform-top.h	2016-03-10 07:33:53.035678182 -0700
-+++ platform-top-new.h	2016-03-11 17:00:55.137771994 -0700
++++ platform-top.h	2016-03-11 17:00:55.137771994 -0700
 @@ -1,2 +1,4 @@
  
  #include <configs/platform-auto.h>

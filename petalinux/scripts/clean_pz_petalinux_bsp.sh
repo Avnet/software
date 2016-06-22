@@ -42,6 +42,7 @@
 #  Dependencies:        None
 #
 #  Revision:            Mar 26, 2016: 1.00 Initial version
+#  Revision:            May 12, 2016: 1.01 Updated to support 2015.4 tools
 # 
 # ----------------------------------------------------------------------------
 
@@ -82,28 +83,28 @@ main_clean_function ()
   # Remove project files created for PetaLinux BSP on the PZ7010_FMC2 target.
   #
   HDL_BOARD_NAME=PZ7010_FMC2
-  PETALINUX_PROJECT_NAME=pz_7010_2015_2_1
+  PETALINUX_PROJECT_NAME=pz_7010_2015_4
   clean_petalinux_bsp
 
   #
   # Remove project files created for PetaLinux BSP on the PZ7015_FMC2 target.
   #
   HDL_BOARD_NAME=PZ7015_FMC2
-  PETALINUX_PROJECT_NAME=pz_7015_2015_2_1
+  PETALINUX_PROJECT_NAME=pz_7015_2015_4
   clean_petalinux_bsp
 
   #
   # Remove project files created for PetaLinux BSP on the PZ7020_FMC2 target.
   #
   HDL_BOARD_NAME=PZ7020_FMC2
-  PETALINUX_PROJECT_NAME=pz_7020_2015_2_1
+  PETALINUX_PROJECT_NAME=pz_7020_2015_4
   clean_petalinux_bsp
 
   #
   # Remove project files created for PetaLinux BSP on the PZ7030_FMC2 target.
   #
   HDL_BOARD_NAME=PZ7030_FMC2
-  PETALINUX_PROJECT_NAME=pz_7030_2015_2_1
+  PETALINUX_PROJECT_NAME=pz_7030_2015_4
   clean_petalinux_bsp
 }
 

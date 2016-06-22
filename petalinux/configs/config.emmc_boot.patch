@@ -1,6 +1,6 @@
 --- config.orig	2016-03-15 09:01:14.610035406 -0700
 +++ config	2016-03-15 12:01:42.172920860 -0700
-@@ -106,17 +106,18 @@
+@@ -106,8 +106,8 @@
  #
  # SD/SDIO Settings
  #
@@ -9,8 +9,9 @@
 +# CONFIG_SUBSYSTEM_SD_PS7_SD_0_SELECT is not set
 +CONFIG_SUBSYSTEM_SD_PS7_SD_1_SELECT=y
  # CONFIG_SUBSYSTEM_SD_MANUAL_SELECT is not set
- CONFIG_SUBSYSTEM_IMAGES_ADVANCED_AUTOCONFIG=y
  
+ #
+@@ -119,9 +119,10 @@
  #
  # boot image settings
  #
