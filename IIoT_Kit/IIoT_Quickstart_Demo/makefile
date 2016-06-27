@@ -1,6 +1,6 @@
 CC = gcc
 CFLAGS = -Wall
-OUT = IIoT_Bluemix_Demo
+OUT = IIoT_QuickStart_Demo
 SRCS := $(wildcard *.c)
 OBJS := ${SRCS:.c=.o}
 DEPS := $(wildcard *.h)
