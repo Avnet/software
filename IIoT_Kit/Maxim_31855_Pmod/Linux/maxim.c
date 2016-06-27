@@ -43,11 +43,13 @@
 
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
 
-static void pabort(const char *s)
+/*
+  static void pabort(const char *s)
 {
 	perror(s);
 	abort();
 }
+*/
 
 static const char *device = "/dev/spidev0.0";   		// Default 
 static uint8_t mode = SPI_CPHA;						// Xilinx PL SPI IP requires a clock phase shift to align the data
