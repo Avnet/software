@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall
+CFLAGS =
 AR = ar
 AROPTS = rcs
 OUT = libpaho.a
