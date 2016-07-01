@@ -16,12 +16,12 @@ all: $(OBJS) paho
 %.o: %.c $(DEPS)
 	$(CC) $(CFLAGS) $(INCDIR) -c $< -o $@ $(LIBDIR) $(LIB)
 
+.PHONY: clean paho
+
 paho:
 	$(MAKE) -C $(SUBDIR)
 
-.PHONY: clean paho
-
 clean:
 	rm -rf *.o $(OUT)
-	$(MAKE) -C ./paho clean
+	$(MAKE) -C $(SUBDIR) clean
 
