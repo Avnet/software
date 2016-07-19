@@ -1,9 +1,9 @@
 --- platform-auto.h	2016-03-11 17:52:04.231740000 -0700
 +++ platform-auto.h	2016-03-11 17:48:48.491535247 -0700
-@@ -193,10 +193,14 @@
- 	"netstart=0x01000000\0" \
- 	"dtbnetstart=0x02800000\0" \
- 	"loadaddr=0x01000000\0" \
+@@ -183,10 +183,14 @@
+ 	"netstart=0x10000000\0" \
+ 	"dtbnetstart=0x11800000\0" \
+ 	"loadaddr=0x10000000\0" \
 +	"bootsize=0x500000\0" \
 +	"bootstart=0x0\0" \
  	"boot_img=BOOT.BIN\0" \
@@ -17,7 +17,7 @@
  	"bootenvsize=0x20000\0" \
  	"bootenvstart=0x620000\0" \
  	"eraseenv=sf probe 0 && sf erase ${bootenvstart} ${bootenvsize}\0" \
-@@ -206,11 +210,15 @@
+@@ -196,11 +200,15 @@
  	"sd_update_jffs2=echo Updating jffs2 from SD; mmcinfo && fatload mmc 0:1 ${clobstart} ${jffs2_img} && run install_jffs2\0" \
  	"install_jffs2=sf probe 0 && sf erase ${jffs2start} ${jffs2size} && " \
  		"sf write ${clobstart} ${jffs2start} ${filesize}\0" \

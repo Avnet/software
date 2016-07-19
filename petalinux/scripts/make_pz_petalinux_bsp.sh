@@ -42,7 +42,8 @@
 #  Dependencies:        None
 #
 #  Revision:            Feb 08, 2016: 1.00 Initial version
-#  Revision:            May 12, 2016: 1.01 Updated for 2015.4 PetaLinux tools 
+#  	                May 12, 2016: 1.01 Updated for 2015.4 PetaLinux tools
+#              		July 5, 2016: 1.02 Updated for 2016.2 PetaLinux tools 
 # 
 # ----------------------------------------------------------------------------
 
@@ -68,8 +69,8 @@ source_tools_settings ()
 {
   # Source the tools settings scripts so that both Vivado and PetaLinux can 
   # be used throughout this build script.
-  source /opt/Xilinx/Vivado/2015.4/settings64.sh
-  source /opt/petalinux-v2015.4-final/settings.sh
+  source /opt/Xilinx/Vivado/2016.2/settings64.sh
+  source /opt/petalinux-v2016.2-final/settings.sh
 }
 
 petalinux_project_restore_boot_config ()
@@ -227,6 +228,9 @@ create_petalinux_bsp ()
   # When complete, the BSP should boot from SD card 
 
   # Change to PetaLinux projects folder.
+  if [ ! -d "${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}" ]; then
+    mkdir ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}
+  fi 
   cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}
 
   # Create the PetaLinux project.
@@ -600,28 +604,28 @@ main_make_function ()
   # Create the PetaLinux BSP for the PZ7010_FMC2 target.
   #
   HDL_BOARD_NAME=PZ7010_FMC2
-  PETALINUX_PROJECT_NAME=pz_7010_2015_4
+  PETALINUX_PROJECT_NAME=pz_7010_2016_2
   create_petalinux_bsp
 
   #
   # Create the PetaLinux BSP for the PZ7015_FMC2 target.
   #
   HDL_BOARD_NAME=PZ7015_FMC2
-  PETALINUX_PROJECT_NAME=pz_7015_2015_4
+  PETALINUX_PROJECT_NAME=pz_7015_2016_2
   create_petalinux_bsp
 
   #
   # Create the PetaLinux BSP for the PZ7020_FMC2 target.
   #
   HDL_BOARD_NAME=PZ7020_FMC2
-  PETALINUX_PROJECT_NAME=pz_7020_2015_4
+  PETALINUX_PROJECT_NAME=pz_7020_2016_2
   create_petalinux_bsp
 
   #
   # Create the PetaLinux BSP for the PZ7030_FMC2 target.
   #
   HDL_BOARD_NAME=PZ7030_FMC2
-  PETALINUX_PROJECT_NAME=pz_7030_2015_4
+  PETALINUX_PROJECT_NAME=pz_7030_2016_2
   create_petalinux_bsp
 }
 

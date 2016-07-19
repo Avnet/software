@@ -6,7 +6,7 @@ Avnet software libraries, project build scripts, and example source code used in
 
 
 ###Current Tools Version:
-- **PetaLinux Tools**: [PetaLinux 2015.2]
+- **PetaLinux Tools**: [PetaLinux 2016.2]
 
 
 ###Where can I find documentation? 
@@ -42,7 +42,7 @@ For design support please contact your local Avnet/Silica FAE or visit one of ou
 
 - If you are adding new code that you wrote, be sure to append the appropriate disclaimer headers (from the [legal] repo) to the top of your source files.
 
-[PetaLinux 2015.2]:http://www.xilinx.com/products/design-tools/embedded-software/petalinux-sdk.html
+[PetaLinux 2016.2]:http://www.xilinx.com/products/design-tools/embedded-software/petalinux-sdk.html
 [Avnet Technical Community]:http://community.em.avnet.com/
 [Zed Community Support Forums]:http://www.picozed.org/forum
 [legal]:https://github.com/Avnet/legal

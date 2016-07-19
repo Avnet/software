@@ -1,6 +1,6 @@
 --- platform-auto.h	2016-03-15 09:01:14.613035427 -0700
 +++ platform-auto.h	2016-03-15 12:02:02.429047337 -0700
-@@ -95,7 +95,7 @@
+@@ -85,7 +85,7 @@
  #define CONFIG_ENV_SECT_SIZE	0x20000
  
  /* sdio - ps7_sd_0 */
@@ -9,10 +9,10 @@
  #define CONFIG_MMC
  #define CONFIG_GENERIC_MMC
  #define CONFIG_SDHCI
-@@ -193,10 +193,14 @@
- 	"netstart=0x01000000\0" \
- 	"dtbnetstart=0x02800000\0" \
- 	"loadaddr=0x01000000\0" \
+@@ -183,10 +183,14 @@
+ 	"netstart=0x10000000\0" \
+ 	"dtbnetstart=0x11800000\0" \
+ 	"loadaddr=0x10000000\0" \
 +	"bootsize=0x620000\0" \
 +	"bootstart=0x0\0" \
  	"boot_img=BOOT.BIN\0" \

@@ -25,6 +25,8 @@ clean:
 install: $(APP)
 #	$(TARGETINST) -d $(APP) /home/root/$(APP)
 	$(TARGETINST) -d -p 0755 $(PKG) /home/root/$(PKG)
+# The following simlink is needed under petalinux 2016.2 for weaved to work
+	$(TARGETINST) -s /lib/ld-2.19-2014.08.so /lib/ld-linux.so.3
 
 %.o: %.c
 	$(CC) -c $(CFLAGS) -o $@ $<

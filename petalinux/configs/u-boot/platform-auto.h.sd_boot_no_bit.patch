@@ -1,6 +1,6 @@
 --- platform-auto.h	2016-03-30 22:15:49.565467542 -0700
 +++ platform-auto.h	2016-03-30 22:51:46.516000420 -0700
-@@ -185,6 +185,9 @@
+@@ -175,6 +175,9 @@
  	SERIAL_MULTI \
  	CONSOLE_ARG \
  	PSSERIAL0 \
@@ -10,7 +10,7 @@
  	"nc=setenv stdout nc;setenv stdin nc;\0" \
  	"ethaddr=00:0a:35:00:1e:53\0" \
  	"sdboot=echo boot Petalinux; mmcinfo && fatload mmc 0 ${netstart} ${kernel_img} && bootm \0" \
-@@ -210,7 +213,7 @@
+@@ -200,7 +203,7 @@
  	"load_kernel=tftpboot ${clobstart} ${kernel_img}\0" \
  	"update_kernel=setenv img kernel; setenv psize ${kernelsize}; setenv installcmd \"install_kernel\"; run load_kernel ${installcmd}; setenv img; setenv psize; setenv installcmd\0" \
  	"install_kernel=mmcinfo && fatwrite mmc 0 ${clobstart} ${kernel_img} ${filesize}\0" \
