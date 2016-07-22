@@ -35,7 +35,7 @@
 #  Target Devices:      Xilinx Zynq-7000
 #  Hardware Boards:     PicoZed SOM
 # 
-#  Tool versions:       Xilinx Vivado 2015.4
+#  Tool versions:       Xilinx Vivado 2016.2
 # 
 #  Description:         Build Script for PicoZed PetaLinux BSP HW Platform
 # 

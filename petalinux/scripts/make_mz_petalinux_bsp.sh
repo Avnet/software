@@ -35,14 +35,15 @@
 #  Target Devices:      Xilinx Zynq-7000
 #  Hardware Boards:     MicroZed SOM
 # 
-#  Tool versions:       Xilinx Vivado 2015.2
+#  Tool versions:       Xilinx Vivado 2016.2
 # 
 #  Description:         Build Script for MicroZed PetaLinux BSP HW Platform
 # 
 #  Dependencies:        None
 #
 #  Revision:            Mar 26, 2016: 1.00 Initial version
-#  Revision:            Jun 16, 2016: 1.01 Updated for 2015.4 PetaLinux tools 
+#                       Jun 16, 2016: 1.01 Updated for 2015.4 PetaLinux tools
+#              		July 20, 2016: 1.02 Updated for 2016.2 PetaLinux tools 
 # 
 # ----------------------------------------------------------------------------
 
@@ -68,8 +69,8 @@ source_tools_settings ()
 {
   # Source the tools settings scripts so that both Vivado and PetaLinux can 
   # be used throughout this build script.
-  source /opt/Xilinx/Vivado/2015.4/settings64.sh
-  source /opt/petalinux-v2015.4-final/settings.sh
+  source /opt/Xilinx/Vivado/2016.2/settings64.sh
+  source /opt/petalinux-v2016.2-final/settings.sh
 }
 
 petalinux_project_restore_boot_config ()
@@ -600,14 +601,14 @@ main_make_function ()
   # Create the PetaLinux BSP for the MZ7010_FMCCC target.
   #
   HDL_BOARD_NAME=MZ7010_FMCCC
-  PETALINUX_PROJECT_NAME=mz_7010_2015_4
+  PETALINUX_PROJECT_NAME=mz_7010_2016_2
   create_petalinux_bsp
 
   #
   # Create the PetaLinux BSP for the MZ7020_FMCCC target.
   #
   HDL_BOARD_NAME=MZ7020_FMCCC
-  PETALINUX_PROJECT_NAME=mz_7020_2015_4
+  PETALINUX_PROJECT_NAME=mz_7020_2016_2
   create_petalinux_bsp
 }
 
