@@ -1,10 +1,12 @@
 --- platform-auto.h	2016-03-15 09:01:14.613035427 -0700
 +++ platform-auto.h	2016-03-15 12:02:02.429047337 -0700
-@@ -85,7 +85,7 @@
+@@ -84,8 +84,8 @@
+ #define CONFIG_ENV_SIZE	0x20000
  #define CONFIG_ENV_SECT_SIZE	0x20000
  
- /* sdio - ps7_sd_0 */
+-/* sdio - ps7_sd_0 */
 -#define CONFIG_ZYNQ_SDHCI0	0xE0100000
++/* sdio - ps7_sd_1 */
 +#define CONFIG_ZYNQ_SDHCI1	0xE0101000
  #define CONFIG_MMC
  #define CONFIG_GENERIC_MMC
@@ -26,3 +28,12 @@
  	"bootenvsize=0x20000\0" \
  	"bootenvstart=0x620000\0" \
  	"eraseenv=sf probe 0 && sf erase ${bootenvstart} ${bootenvsize}\0" \
+@@ -200,7 +204,7 @@
+ 	"load_kernel=tftpboot ${clobstart} ${kernel_img}\0" \
+ 	"update_kernel=setenv img kernel; setenv psize ${kernelsize}; setenv installcmd \"install_kernel\"; run load_kernel ${installcmd}; setenv img; setenv psize; setenv installcmd\0" \
+ 	"install_kernel=mmcinfo && fatwrite mmc 0 ${clobstart} ${kernel_img} ${filesize}\0" \
+-	"cp_kernel2ram=mmcinfo && fatload mmc 0 ${netstart} ${kernel_img}\0" \
++	"cp_kernel2ram=mmc dev 1 && fatload mmc 1 ${netstart} ${kernel_img}\0" \
+ 	"dtb_img=system.dtb\0" \
+ 	"load_dtb=tftpboot ${clobstart} ${dtb_img}\0" \
+ 	"update_dtb=setenv img dtb; setenv psize ${dtbsize}; setenv installcmd \"install_dtb\"; run load_dtb test_img; setenv img; setenv psize; setenv installcmd\0" \
