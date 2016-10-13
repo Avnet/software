@@ -1,0 +1,18 @@
+--- mmc.c	2016-09-21 12:22:13.928926000 -0700
++++ mmc.c	2016-09-29 17:48:09.421608990 -0700
+@@ -516,6 +516,7 @@
+ 
+ 	cardtype = ext_csd[EXT_CSD_CARD_TYPE] & 0xf;
+ 
++#ifndef CONFIG_ZYNQ_HISPD_BROKEN
+ 	err = mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL, EXT_CSD_HS_TIMING, 1);
+ 
+ 	if (err)
+@@ -526,6 +527,7 @@
+ 
+ 	if (err)
+ 		return err;
++#endif
+ 
+ 	/* No high-speed support */
+ 	if (!ext_csd[EXT_CSD_HS_TIMING])
