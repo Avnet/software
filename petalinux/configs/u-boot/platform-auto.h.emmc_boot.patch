@@ -1,15 +1,25 @@
---- platform-auto.h	2016-03-15 09:01:14.613035427 -0700
-+++ platform-auto.h	2016-03-15 12:02:02.429047337 -0700
-@@ -85,7 +85,7 @@
+--- platform-auto.h	2016-10-11 15:45:02.237814076 -0700
++++ platform-auto.h	2016-10-11 15:52:45.110814076 -0700
+@@ -84,8 +84,8 @@
+ #define CONFIG_ENV_SIZE	0x20000
  #define CONFIG_ENV_SECT_SIZE	0x20000
  
- /* sdio - ps7_sd_0 */
+-/* sdio - ps7_sd_0 */
 -#define CONFIG_ZYNQ_SDHCI0	0xE0100000
++/* sdio - ps7_sd_1 */
 +#define CONFIG_ZYNQ_SDHCI1	0xE0101000
  #define CONFIG_MMC
  #define CONFIG_GENERIC_MMC
  #define CONFIG_SDHCI
-@@ -183,10 +183,14 @@
+@@ -98,6 +98,7 @@
+ #define CONFIG_DOS_PARTITION
+ #define CONFIG_FAT_WRITE
+ #define CONFIG_ZYNQ_SDHCI_MAX_FREQ  52000000
++#define CONFIG_ZYNQ_HISPD_BROKEN
+ 
+ /* devcfg - ps7_dev_cfg_0 */
+ #define CONFIG_FPGA
+@@ -183,10 +184,14 @@
  	"netstart=0x10000000\0" \
  	"dtbnetstart=0x11800000\0" \
  	"loadaddr=0x10000000\0" \
@@ -24,5 +34,14 @@
 +	"install_boot=sf probe 0 && sf erase ${bootstart} ${bootsize} && " \
 +		"sf write ${clobstart} ${bootstart} ${filesize}\0" \
  	"bootenvsize=0x20000\0" \
- 	"bootenvstart=0x620000\0" \
+ 	"bootenvstart=0x500000\0" \
  	"eraseenv=sf probe 0 && sf erase ${bootenvstart} ${bootenvsize}\0" \
+@@ -200,7 +205,7 @@
+ 	"load_kernel=tftpboot ${clobstart} ${kernel_img}\0" \
+ 	"update_kernel=setenv img kernel; setenv psize ${kernelsize}; setenv installcmd \"install_kernel\"; run load_kernel ${installcmd}; setenv img; setenv psize; setenv installcmd\0" \
+ 	"install_kernel=mmcinfo && fatwrite mmc 0 ${clobstart} ${kernel_img} ${filesize}\0" \
+-	"cp_kernel2ram=mmcinfo && fatload mmc 0 ${netstart} ${kernel_img}\0" \
++	"cp_kernel2ram=mmc dev 1 && fatload mmc 1 ${netstart} ${kernel_img}\0" \
+ 	"dtb_img=system.dtb\0" \
+ 	"load_dtb=tftpboot ${clobstart} ${dtb_img}\0" \
+ 	"update_dtb=setenv img dtb; setenv psize ${dtbsize}; setenv installcmd \"install_dtb\"; run load_dtb test_img; setenv img; setenv psize; setenv installcmd\0" \

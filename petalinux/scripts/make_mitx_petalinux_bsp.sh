@@ -28,35 +28,33 @@
 # 
 # ----------------------------------------------------------------------------
 # 
-#  Create Date:         Feb 08, 2016
-#  Design Name:         PicoZed PetaLinux BSP Generator
-#  Module Name:         make_pz_petalinux_bsp.tcl
-#  Project Name:        PicoZed PetaLinux BSP Generator
+#  Create Date:         July 27, 2016
+#  Design Name:         MicroZed PetaLinux BSP Generator
+#  Module Name:         make_mitx_petalinux_bsp.tcl
+#  Project Name:        Mini-ITX PetaLinux BSP Generator
 #  Target Devices:      Xilinx Zynq-7000
-#  Hardware Boards:     PicoZed SOM
+#  Hardware Boards:     MicroZed SOM
 # 
 #  Tool versions:       Xilinx Vivado 2016.2
 # 
-#  Description:         Build Script for PicoZed PetaLinux BSP HW Platform
+#  Description:         Build Script for MicroZed PetaLinux BSP HW Platform
 # 
 #  Dependencies:        None
 #
-#  Revision:            Feb 08, 2016: 1.00 Initial version
-#  	                May 12, 2016: 1.01 Updated for 2015.4 PetaLinux tools
-#              		July 5, 2016: 1.02 Updated for 2016.2 PetaLinux tools 
+#  Revision:            July 27, 2016: 1.00 Initial version
 # 
 # ----------------------------------------------------------------------------
 
 #!/bin/bash
 
 # Set global variables here.
-BUILD_BOOT_QSPI_OPTION=yes
-BUILD_BOOT_EMMC_OPTION=yes
-BUILD_BOOT_EMMC_NO_BIT_OPTION=yes
-BUILD_BOOT_SD_NO_BIT_OPTION=yes
+BUILD_BOOT_QSPI_OPTION=no
+BUILD_BOOT_EMMC_OPTION=no
+BUILD_BOOT_EMMC_NO_BIT_OPTION=no
+BUILD_BOOT_SD_NO_BIT_OPTION=no
 FSBL_PROJECT_NAME=zynq_fsbl_app
-HDL_HARDWARE_NAME=pz_petalinux_hw
-HDL_PROJECT_NAME=pz_petalinux
+HDL_HARDWARE_NAME=mitx_petalinux_hw
+HDL_PROJECT_NAME=mitx_petalinux
 HDL_PROJECTS_FOLDER=../../../hdl/Projects
 HDL_SCRIPTS_FOLDER=../../../hdl/Scripts
 PETALINUX_APPS_FOLDER=../../../software/petalinux/apps
@@ -228,9 +226,6 @@ create_petalinux_bsp ()
   # When complete, the BSP should boot from SD card 
 
   # Change to PetaLinux projects folder.
-  if [ ! -d "${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}" ]; then
-    mkdir ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}
-  fi 
   cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}
 
   # Create the PetaLinux project.
@@ -290,14 +285,6 @@ create_petalinux_bsp ()
     ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/subsystems/linux/config
   fi
 
-  # Create a customized version of U-Boot source code which can contain 
-  # customization patches specific to PicoZed hardware.
-  mkdir ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/components/u-boot
-  cp -Rf /opt/petalinux-v2016.2-final/components/u-boot/u-boot-plnx \
-  ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/components/u-boot/
-  mv ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/components/u-boot/u-boot-plnx \
-  ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/components/u-boot/u-boot-plnx-emmc
-
   # Create a PetaLinux application named httpd_content.
   petalinux-create --type apps --name httpd_content --enable
 
@@ -353,17 +340,8 @@ create_petalinux_bsp ()
   echo " "
   echo "Overwriting config level devicetree source ..."
   echo " "
-  cp -rf ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/device-tree/system-conf.dtsi.pz \
+  cp -rf ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/device-tree/system-conf.dtsi \
   ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/subsystems/linux/configs/device-tree/
-  
-  # Apply U-Boot patches to allow SDIO1 to be forced into standard speed 
-  # mode to accomodate PicoZed eMMC.
-  echo " "
-  echo "Applying patch to force eMMC into standard speed mode ..."
-  echo " "
-  cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/components/u-boot/u-boot-plnx-emmc/drivers/mmc
-  patch < ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/u-boot/mmc.c.emmc_boot.patch
-  cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}
 
   # Prepare to modify project configurations.
   petalinux_project_save_boot_config
@@ -387,10 +365,6 @@ create_petalinux_bsp ()
     # Copy the boot.bin file and name the new file BOOT_QSPI.bin
     cp ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/images/linux/BOOT.BIN \
     ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/images/linux/BOOT_QSPI.bin
-
-    # Copy the u-boot.elf file and name the new file u-boot_QSPI.elf
-    cp ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/images/linux/u-boot.elf \
-    ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/images/linux/u-boot_QSPI.elf
   fi
 
   # Restore project configurations and wipe out any changes made for special 
@@ -416,10 +390,6 @@ create_petalinux_bsp ()
     # Copy the boot.bin file and name the new file BOOT_EMMC.bin
     cp ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/images/linux/BOOT.BIN \
     ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/images/linux/BOOT_EMMC.bin
-
-    # Copy the u-boot.elf file and name the new file u-boot_EMMC.elf
-    cp ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/images/linux/u-boot.elf \
-    ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/images/linux/u-boot_EMMC.elf
   fi
 
   # Restore project configurations and wipe out any changes made for special 
@@ -446,10 +416,6 @@ create_petalinux_bsp ()
     # Copy the boot.bin file and name the new file BOOT_EMMC_No_Bit.BIN
     cp ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/images/linux/BOOT.BIN \
     ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/images/linux/BOOT_EMMC_No_Bit.BIN
-
-    # Copy the u-boot.elf file and name the new file u-boot_EMMC_No_Bit.elf
-    cp ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/images/linux/u-boot.elf \
-    ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/images/linux/u-boot_EMMC_No_Bit.elf
 
     # Create a temporary Vivado TCL script which take the standard bitstream 
     # file format and modify it to allow u-boot to load it into the 
@@ -488,10 +454,6 @@ create_petalinux_bsp ()
     cp ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/images/linux/BOOT.BIN \
     ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/images/linux/BOOT_SD_No_Bit.BIN
 
-    # Copy the u-boot.elf file and name the new file u-boot_SD_No_Bit.elf
-    cp ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/images/linux/u-boot.elf \
-    ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/images/linux/u-boot_SD_No_Bit.elf
-
     # Create a temporary Vivado TCL script which take the standard bitstream 
     # file format and modify it to allow u-boot to load it into the 
     # programmable logic on the Zynq device via PCAP interface.
@@ -520,10 +482,6 @@ create_petalinux_bsp ()
   # Copy the boot.bin file and name the new file BOOT_SD.bin
   cp ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/images/linux/BOOT.BIN \
   ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/images/linux/BOOT_SD.bin
-
-  # Copy the u-boot.elf file and name the new file u-boot_SD.elf
-  cp ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/images/linux/u-boot.elf \
-  ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/images/linux/u-boot_SD.elf
 
   # Change to HDL scripts folder.
   cd ${START_FOLDER}/${HDL_SCRIPTS_FOLDER}
@@ -560,19 +518,11 @@ create_petalinux_bsp ()
   cp ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/images/linux/BOOT_SD.bin \
   ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/pre-built/linux/images/
 
-  # Also copy the u-boot_SD.elf file to the pre-build images folder.
-  cp ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/images/linux/u-boot_SD.elf \
-  ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/pre-built/linux/images/
-
   # If the BOOT_QSPI_OPTION is set, copy the BOOT_QSPI.BIN to the 
   # pre-built images folder.
   if [ "$BUILD_BOOT_QSPI_OPTION" == "yes" ]
   then
     cp ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/images/linux/BOOT_QSPI.bin \
-    ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/pre-built/linux/images/
-
-    # Also copy the u-boot_QSPI.elf file to the pre-build images folder.
-    cp ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/images/linux/u-boot_QSPI.elf \
     ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/pre-built/linux/images/
   fi
 
@@ -581,10 +531,6 @@ create_petalinux_bsp ()
   if [ "$BUILD_BOOT_EMMC_OPTION" == "yes" ]
   then
     cp ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/images/linux/BOOT_EMMC.bin \
-    ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/pre-built/linux/images/
-
-    # Also copy the u-boot_EMMC.elf file to the pre-build images folder.
-    cp ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/images/linux/u-boot_EMMC.elf \
     ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/pre-built/linux/images/
   fi
 
@@ -597,10 +543,6 @@ create_petalinux_bsp ()
 
     cp ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/images/linux/system.bit.bin \
     ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/pre-built/linux/images/
-
-    # Also copy the u-boot_EMMC_No_Bit.elf file to the pre-build images folder.
-    cp ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/images/linux/u-boot_EMMC_No_Bit.elf \
-    ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/pre-built/linux/images/
   fi
 
   # If the BOOT_SD_NO_BIT_OPTION is set, copy the BOOT_EMMC_No_Bit.BIN and 
@@ -611,10 +553,6 @@ create_petalinux_bsp ()
     ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/pre-built/linux/images/
 
     cp ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/images/linux/system.bit.bin \
-    ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/pre-built/linux/images/
-
-    # Also copy the u-boot_SD_No_Bit.elf file to the pre-build images folder.
-    cp ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/images/linux/u-boot_SD_No_Bit.elf \
     ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/pre-built/linux/images/
   fi
 
@@ -658,31 +596,17 @@ main_make_function ()
   vivado -mode batch -source make_${HDL_PROJECT_NAME}.tcl
 
   #
-  # Create the PetaLinux BSP for the PZ7010_FMC2 target.
+  # Create the PetaLinux BSP for the MITXZ7045 target.
   #
-  HDL_BOARD_NAME=PZ7010_FMC2
-  PETALINUX_PROJECT_NAME=pz_7010_2016_2
+  HDL_BOARD_NAME=MITXZ7045
+  PETALINUX_PROJECT_NAME=mitx_7045_2016_2
   create_petalinux_bsp
 
   #
-  # Create the PetaLinux BSP for the PZ7015_FMC2 target.
+  # Create the PetaLinux BSP for the MITXZ7100 target.
   #
-  HDL_BOARD_NAME=PZ7015_FMC2
-  PETALINUX_PROJECT_NAME=pz_7015_2016_2
-  create_petalinux_bsp
-
-  #
-  # Create the PetaLinux BSP for the PZ7020_FMC2 target.
-  #
-  HDL_BOARD_NAME=PZ7020_FMC2
-  PETALINUX_PROJECT_NAME=pz_7020_2016_2
-  create_petalinux_bsp
-
-  #
-  # Create the PetaLinux BSP for the PZ7030_FMC2 target.
-  #
-  HDL_BOARD_NAME=PZ7030_FMC2
-  PETALINUX_PROJECT_NAME=pz_7030_2016_2
+  HDL_BOARD_NAME=MITXZ7100
+  PETALINUX_PROJECT_NAME=mitx_7100_2016_2
   create_petalinux_bsp
 }
 
