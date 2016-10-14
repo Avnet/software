@@ -469,12 +469,14 @@
 			i2c1@1e {
 				#address-cells = <0x1>;
 				#size-cells = <0x0>;
+				compatible = "stm,lis3mdl_mag";
 				reg = <0x1e>;
 			};
 
 			i2c2@5d {
 				#address-cells = <0x1>;
 				#size-cells = <0x0>;
+				compatible = "stm,lps25hb";
 				reg = <0x5d>;
 			};
 
