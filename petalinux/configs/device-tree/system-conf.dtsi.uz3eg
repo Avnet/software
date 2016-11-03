@@ -3,19 +3,16 @@
  * DO NOT modify this file
  */
 
-/include/ "zynqmp.dtsi"
-/include/ "pcw.dtsi"
-/include/ "zynqmp-clk.dtsi"
+#include "zynqmp.dtsi"
+#include "pcw.dtsi"
+#include "zynqmp-clk.dtsi"
+#include <dt-bindings/phy/phy.h>
 
 / {
 	model = "Xilinx-ZCU102-2016.2";
 	aliases {
-		mmc0 = &sdhci0;
-		mmc1 = &sdhci1;
 		serial0 = &uart0;
 		ethernet0 = &gem3;
-		spi0 = &qspi;
-		rtc0 = &rtc;
 	};
 	chosen {
 		bootargs = "earlycon=cdns,mmio,0xFF000000,115200n8";
@@ -31,38 +28,7 @@
 	local-mac-address = [00 0a 35 00 22 01];
 };
 
-&qspi {
-	#address-cells = <1>;
-	#size-cells = <0>;
-	flash0: flash@0 {
-		compatible = "micron,n25q128";
-		reg = <0x0>;
-		#address-cells = <1>;
-		#size-cells = <1>;
-		spi-max-frequency = <50000000>;
-		partition@0x00000000 {
-			label = "boot";
-			reg = <0x00000000 0x01e00000>;
-		};
-		partition@0x01e00000 {
-			label = "bootenv";
-			reg = <0x01e00000 0x00040000>;
-		};
-		partition@0x01e40000 {
-			label = "kernel";
-			reg = <0x01e40000 0x01a00000>;
-		};
-		partition@0x03840000 {
-			label = "spare";
-			reg = <0x03840000 0x00000000>;
-		};
-	};
-};
-
-
 &sata {
-
-
 	ceva,p0-cominit-params = /bits/ 8 <0x18 0x40 0x18 0x28>;
 	ceva,p0-comwake-params = /bits/ 8 <0x06 0x14 0x08 0x0E>;
 	ceva,p0-burst-params = /bits/ 8 <0x13 0x08 0x4A 0x06>;
@@ -72,5 +38,5 @@
 	ceva,p1-comwake-params = /bits/ 8 <0x06 0x14 0x08 0x0E>;
 	ceva,p1-burst-params = /bits/ 8 <0x13 0x08 0x4A 0x06>;
 	ceva,p1-retry-params = /bits/ 16 <0x96A4 0x3FFC>;
-
 };
+

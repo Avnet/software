@@ -1,0 +1,29 @@
+--- psu_init.c	2016-10-21 16:22:57.063832000 -0700
++++ psu_init.c	2016-10-31 13:05:14.984722000 -0700
+@@ -18904,6 +18904,26 @@
+ int serdes_fixcal_code() {
+ 	int MaskStatus = 1;
+ 
++
++   // Begin SD card and eMMC patch.
++
++   xil_printf("\r\nAvnet modifying SDHCI0 and SDHCI1 registers for UltraZed SOM\n\r\n\r");
++
++   unsigned int tmpreg;
++
++   // SDCONFIG_REG1
++   Xil_Out32(0xFF18031C, 0x64406440);
++
++   // SD_ITAPDLY
++   //Xil_Out32(0xFF180314, 0x01150000);
++   Xil_Out32(0xFF180314, 0x01150115);
++
++   // SD_OTAPDLYSEL
++   //Xil_Out32(0xFF180318, 0x00450043);
++   Xil_Out32(0xFF180318, 0x00460046);
++
++   // End of SD card and eMMC patch.
++
+    // L3_TM_CALIB_DIG19
+    Xil_Out32(0xFD40EC4C,0x00000020);
+    //ICM_CFG0

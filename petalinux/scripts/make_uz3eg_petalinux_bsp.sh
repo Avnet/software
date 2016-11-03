@@ -53,7 +53,7 @@ BUILD_BOOT_EMMC_OPTION=no
 BUILD_BOOT_EMMC_NO_BIT_OPTION=no
 BUILD_BOOT_SD_OPTION=yes
 BUILD_BOOT_SD_NO_BIT_OPTION=no
-FSBL_PROJECT_NAME=zynq_fsbl_app
+FSBL_PROJECT_NAME=zynqmp_fsbl
 HDL_HARDWARE_NAME=uz_petalinux_hw
 HDL_PROJECT_NAME=uz_petalinux
 HDL_PROJECTS_FOLDER=../../../hdl/Projects
@@ -273,16 +273,6 @@ create_petalinux_bsp ()
   cp -f ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}/${HDL_PROJECT_NAME}.runs/impl_1/${HDL_PROJECT_NAME}_wrapper.bit \
   ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/hw_platform/system_wrapper.bit
 
-  # Import the First Stage Boot Loader application executable from the SDK
-  # workspace FSBL application folder.
-
-  echo " "
-  echo "Importing FSBL from ${HDL_HARDWARE_NAME}.sdk workspace ..."
-  echo " "
-
-  cp -f ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}/${HDL_PROJECT_NAME}.sdk/${FSBL_PROJECT_NAME}/Release/${FSBL_PROJECT_NAME}.elf \
-  ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/hw_platform/${FSBL_PROJECT_NAME}.elf
-
   # Change directories to the hardware definition folder for the PetaLinux
   # project, at this point the .hdf file must be located in this folder 
   # for the petalinux-config step to be successful.
@@ -340,13 +330,24 @@ create_petalinux_bsp ()
   cp -f ~/demo/weaved/weavedOEM/weavedConnectd.arm7l \
   ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/components/apps/weaved/weavedOEM/
 
+  # Modify the stock First Stage Boot Loader application source code to 
+  # include additional patches specific to the board hardware.
+
+  echo " "
+  echo "Modifying stock FSBL code with patches for ${HDL_BOARD_NAME} hardware ..."
+  echo " "
+
+  cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/components/bootloader/zynqmp_fsbl/
+  patch < ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/bootloader/psu_init.c.patch.UZ3EG_IOCC
+  cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}
+
   # Overwrite the rootfs component config with the revision controlled source
   # config.
   echo " "
   echo "Overwriting rootfs config ..."
   echo " "
   cp -rf ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/rootfs/config \
-  ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/subsystems/linux/configs/rootfs/
+  ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/subsystems/linux/configs/rootfs/config
 
   # Overwrite the top level devicetree source with the revision controlled
   # source file.
@@ -414,7 +415,7 @@ create_petalinux_bsp ()
     petalinux-build 
 
     # Create boot image.
-    petalinux-package --boot --fsbl hw_platform/${FSBL_PROJECT_NAME}.elf --fpga hw_platform/system_wrapper.bit --uboot --force
+    petalinux-package --boot --fsbl images/linux/${FSBL_PROJECT_NAME}.elf --fpga hw_platform/system_wrapper.bit --uboot --force
 
     # Copy the boot.bin file and name the new file BOOT_EMMC.bin
     cp ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/images/linux/BOOT.BIN \
@@ -440,7 +441,7 @@ create_petalinux_bsp ()
     petalinux-build 
 
     # Create boot imagewhich does not contain the bistream image.
-    petalinux-package --boot --fsbl hw_platform/${FSBL_PROJECT_NAME}.elf --uboot --force
+    petalinux-package --boot --fsbl images/linux/${FSBL_PROJECT_NAME}.elf --uboot --force
 
     # Copy the boot.bin file and name the new file BOOT_EMMC_No_Bit.BIN
     cp ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/images/linux/BOOT.BIN \
@@ -477,7 +478,7 @@ create_petalinux_bsp ()
     petalinux-build 
 
     # Create boot image which does not contain the bistream image.
-    petalinux-package --boot --fsbl hw_platform/${FSBL_PROJECT_NAME}.elf --uboot --force
+    petalinux-package --boot --fsbl images/linux/${FSBL_PROJECT_NAME}.elf --uboot --force
 
     # Copy the boot.bin file and name the new file BOOT_SD_No_Bit.BIN
     cp ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/images/linux/BOOT.BIN \
@@ -514,7 +515,7 @@ create_petalinux_bsp ()
     petalinux-build 
 
     # Create boot image which does not contain the bistream image.
-    petalinux-package --boot --fsbl hw_platform/${FSBL_PROJECT_NAME}.elf --fpga hw_platform/system_wrapper.bit --uboot --force
+    petalinux-package --boot --fsbl images/linux/${FSBL_PROJECT_NAME}.elf --fpga hw_platform/system_wrapper.bit --uboot --force
 
     # Copy the boot.bin file and name the new file BOOT_SD.BIN
     cp ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/images/linux/BOOT.BIN \
