@@ -16,6 +16,7 @@
 #include "zynqmp.dtsi"
 #include "zynqmp-clk.dtsi"
 #include "pcw.dtsi"
+#include "pl.dtsi"
 #include "system-conf.dtsi"
 
 / {
@@ -49,11 +50,6 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <0>;
-			/* IIC_EEPROM */
-			eeprom@52 { /* U5 on UZ3EG IO Carrier*/
-				compatible = "at,24c08";
-				reg = <0x52>;
-			};
 		};
 	};
 };

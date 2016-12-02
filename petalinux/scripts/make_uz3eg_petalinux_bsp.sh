@@ -11,11 +11,11 @@
 #  This design is the property of Avnet.  Publication of this
 #  design is not authorized without written consent from Avnet.
 # 
-#  Please direct any questions to the PicoZed community support forum:
-#     http://www.picozed.org/forum
+#  Please direct any questions to the UltraZed community support forum:
+#     http://www.ultrazed.org/forum
 # 
 #  Product information is available at:
-#     http://www.picozed.org/product/picozed
+#     http://www.ultrazed.org/product/ultrazed-EG
 # 
 #  Disclaimer:
 #     Avnet, Inc. makes no warranty for the use of this code or design.
@@ -37,7 +37,7 @@
 # 
 #  Tool versions:       Xilinx Vivado 2016.2
 # 
-#  Description:         Clean Script for UZ3EG PetaLinux BSP HW Platform
+#  Description:         Build Script for UZ3EG PetaLinux BSP HW Platform
 # 
 #  Dependencies:        None
 #
@@ -48,10 +48,13 @@
 #!/bin/bash
 
 # Set global variables here.
-BUILD_BOOT_QSPI_OPTION=no
-BUILD_BOOT_EMMC_OPTION=no
+APP_PETALINUX_INSTALL_PATH=/opt/petalinux-v2016.2-final
+APP_VIVADO_INSTALL_PATH=/opt/Xilinx/Vivado/2016.2
+BUILD_BOOT_EMMC_OPTION=yes
+BUILD_BOOT_EMMC_OOB_OPTION=yes
 BUILD_BOOT_EMMC_NO_BIT_OPTION=no
 BUILD_BOOT_SD_OPTION=yes
+BUILD_BOOT_SD_OOB_OPTION=yes
 BUILD_BOOT_SD_NO_BIT_OPTION=no
 FSBL_PROJECT_NAME=zynqmp_fsbl
 HDL_HARDWARE_NAME=uz_petalinux_hw
@@ -68,8 +71,8 @@ source_tools_settings ()
 {
   # Source the tools settings scripts so that both Vivado and PetaLinux can 
   # be used throughout this build script.
-  source /opt/Xilinx/Vivado/2016.2/settings64.sh
-  source /opt/petalinux-v2016.2-final/settings.sh
+  source ${APP_VIVADO_INSTALL_PATH}/settings64.sh
+  source ${APP_PETALINUX_INSTALL_PATH}/settings.sh
 }
 
 petalinux_project_restore_boot_config ()
@@ -82,6 +85,14 @@ petalinux_project_restore_boot_config ()
   echo "Restoring original PetaLinux project config ..."
   echo " "
   cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/subsystems/linux/
+  cp config.orig config
+  cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}
+
+  # Restore original U-Boot config. 
+  echo " "
+  echo "Restoring original U-Boot project config ..."
+  echo " "
+  cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/subsystems/linux/configs/u-boot/
   cp config.orig config
   cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}
 
@@ -112,6 +123,14 @@ petalinux_project_save_boot_config ()
   cp config config.orig
   cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}
 
+  # Save original U-Boot config.
+  echo " "
+  echo "Saving original U-Boot config ..."
+  echo " "
+  cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/subsystems/linux/configs/u-boot/
+  cp config config.orig
+  cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}
+
   # Save original U-Boot top level configuration.
   echo " "
   echo "Saving original U-Boot top level configuration..."
@@ -131,20 +150,12 @@ petalinux_project_save_boot_config ()
 
 petalinux_project_set_boot_config_emmc ()
 { 
-  # Change PetaLinux project config to boot from eMMC (via QSPI).
+  # Add support for eMMC boot to U-Boot environment configuration.
   echo " "
-  echo "Patching project config for eMMC boot support..."
-  echo " "
-  cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/subsystems/linux/
-  patch < ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/config.emmc_boot.patch
-  cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}
-
-  # Add support for QSPI + eMMC boot to U-Boot environment configuration.
-  echo " "
-  echo "Applying patch to add QSPI + eMMC boot support in U-Boot ..."
+  echo "Applying patch to add eMMC boot support in U-Boot ..."
   echo " "
   cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/subsystems/linux/configs/u-boot
-  patch < ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/u-boot/platform-auto.h.emmc_boot.patch
+  patch < ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/u-boot/platform-top.h.UZ3EG_IOCC.emmc_boot.patch
   cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}
 }
 
@@ -181,11 +192,12 @@ petalinux_project_set_boot_config_sd ()
 { 
   # Add support for SD commands to U-Boot top level configuration in which
   # bistream has already been loaded from the BOOT.BIN container file.
+  # Add support for eMMC boot to U-Boot environment configuration.
   echo " "
-  echo "Overwriting U-Boot platform-auto.h configuration ..."
+  echo "Applying patch to add SD boot support in U-Boot ..."
   echo " "
   cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/subsystems/linux/configs/u-boot
-  cp ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/u-boot/platform-auto.h.UZ3EG_IOCC platform-auto.h
+  patch < ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/u-boot/platform-top.h.UZ3EG_IOCC.sd_boot.patch
   cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}
 }
 
@@ -212,20 +224,12 @@ petalinux_project_set_boot_config_qspi ()
   patch < ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/config.qspi_boot.patch
   cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}
 
-  # Add support for QSPI commands to U-Boot top level configuration.
-  echo " "
-  echo "Applying patch to add QSPI command support in U-Boot ..."
-  echo " "
-  cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/subsystems/linux/configs/u-boot
-  patch < ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/u-boot/platform-top.h.add_qspi_support.patch
-  cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}
-
   # Add support for QSPI boot to U-Boot environment configuration.
   echo " "
   echo "Applying patch to add QSPI boot support in U-Boot ..."
   echo " "
   cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/subsystems/linux/configs/u-boot
-  patch < ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/u-boot/platform-auto.h.qspi_boot.patch
+  patch < ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/u-boot/platform-auto.h.UZ3EG_IOCC.qspi_boot.patch
   cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}
 }
 
@@ -317,18 +321,21 @@ create_petalinux_bsp ()
   cp -f ~/demo/iperf/aarch64/src/iperf3 \
   ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/components/apps/iperf3/
 
-  # Create a PetaLinux application named weaved.
-  petalinux-create --type apps --name weaved --enable
+  # Create a PetaLinux application named linux_ps_led_blink.
+  petalinux-create --type apps --name linux_ps_led_blink --enable
 
-  # Copy the weaved application information over to the weaved 
-  # application folder.
-  cp -rf ${START_FOLDER}/${PETALINUX_APPS_FOLDER}/weaved/* \
-  ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/components/apps/weaved
+  # Copy the linux_ps_led_blink application information over to the 
+  # linux_ps_led_blink application folder.
+  cp -rf ${START_FOLDER}/${PETALINUX_APPS_FOLDER}/linux_ps_led_blink/* \
+  ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/components/apps/linux_ps_led_blink
 
-  # Copy the weaved application binary over to the the weaved application
-  # folder.
-  cp -f ~/demo/weaved/weavedOEM/weavedConnectd.arm7l \
-  ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/components/apps/weaved/weavedOEM/
+  # Create a PetaLinux application named ultrazed_oob_init.
+  petalinux-create --type apps --name ultrazed_oob_init --enable
+
+  # Copy the ultrazed_oob_init application information over to the 
+  # ultrazed_oob_init application folder.
+  cp -rf ${START_FOLDER}/${PETALINUX_APPS_FOLDER}/ultrazed_oob_init/* \
+  ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/components/apps/ultrazed_oob_init
 
   # Modify the stock First Stage Boot Loader application source code to 
   # include additional patches specific to the board hardware.
@@ -346,7 +353,7 @@ create_petalinux_bsp ()
   echo " "
   echo "Overwriting rootfs config ..."
   echo " "
-  cp -rf ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/rootfs/config \
+  cp -rf ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/rootfs/config.UZ3EG_IOCC \
   ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/subsystems/linux/configs/rootfs/config
 
   # Overwrite the top level devicetree source with the revision controlled
@@ -390,7 +397,7 @@ create_petalinux_bsp ()
     petalinux-build 
 
     # Create boot image.
-    petalinux-package --boot --fsbl hw_platform/${FSBL_PROJECT_NAME}.elf --fpga hw_platform/system_wrapper.bit --uboot --force
+    petalinux-package --boot --fsbl images/linux/${FSBL_PROJECT_NAME}.elf --fpga hw_platform/system_wrapper.bit --uboot --force
 
     # Copy the boot.bin file and name the new file BOOT_QSPI.bin
     cp ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/images/linux/BOOT.BIN \
@@ -402,7 +409,7 @@ create_petalinux_bsp ()
   petalinux_project_restore_boot_config
 
   # If the EMMC boot option is set, then perform the steps needed to build 
-  # BOOT.BIN for booting from QSPI + eMMC.
+  # BOOT.BIN for booting from eMMC.
   if [ "$BUILD_BOOT_EMMC_OPTION" == "yes" ]
   then
     # Modify the project configuration for EMMC boot.
@@ -412,7 +419,21 @@ create_petalinux_bsp ()
     petalinux-build -x distclean
 
     # Build PetaLinux project.
-    petalinux-build 
+    petalinux-build
+
+    # If the EMMC OOB boot option is set, then perform the steps needed to  
+    # build BOOT.BIN for booting from EMMC without any bistream loaded from 
+    # the BOOT.BIN container image on the EMMC or from U-Boot during
+    # second stage boot.
+    if [ "$BUILD_BOOT_EMMC_OOB_OPTION" == "yes" ]
+    then
+      # Create boot image which does not contain the bistream image.
+      petalinux-package --boot --fsbl images/linux/${FSBL_PROJECT_NAME}.elf --uboot --force
+
+      # Copy the boot.bin file and name the new file BOOT_EMMC_OOB.BIN
+      cp ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/images/linux/BOOT.BIN \
+      ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/images/linux/BOOT_EMMC_OOB.bin
+    fi
 
     # Create boot image.
     petalinux-package --boot --fsbl images/linux/${FSBL_PROJECT_NAME}.elf --fpga hw_platform/system_wrapper.bit --uboot --force
@@ -514,7 +535,21 @@ create_petalinux_bsp ()
     # Build PetaLinux project.
     petalinux-build 
 
-    # Create boot image which does not contain the bistream image.
+    # If the SD OOB boot option is set, then perform the steps needed to  
+    # build BOOT.BIN for booting from SD without any bistream loaded from 
+    # the BOOT.BIN container image on the SD card or from U-Boot during
+    # second stage boot.
+    if [ "$BUILD_BOOT_SD_OOB_OPTION" == "yes" ]
+    then
+      # Create boot image which does not contain the bistream image.
+      petalinux-package --boot --fsbl images/linux/${FSBL_PROJECT_NAME}.elf --uboot --force
+
+      # Copy the boot.bin file and name the new file BOOT_SD_OOB.BIN
+      cp ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/images/linux/BOOT.BIN \
+      ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/images/linux/BOOT_SD_OOB.bin
+    fi
+
+    # Create boot image which DOES contain the bistream image.
     petalinux-package --boot --fsbl images/linux/${FSBL_PROJECT_NAME}.elf --fpga hw_platform/system_wrapper.bit --uboot --force
 
     # Copy the boot.bin file and name the new file BOOT_SD.BIN
@@ -557,6 +592,14 @@ create_petalinux_bsp ()
   cp ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/images/linux/BOOT_SD.bin \
   ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/pre-built/linux/images/
 
+  # If the BOOT_SD_OOB_OPTION is set, copy the BOOT_SD_OOB.BIN to the 
+  # pre-built images folder.
+  if [ "$BUILD_BOOT_SD_OOB_OPTION" == "yes" ]
+  then
+    cp ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/images/linux/BOOT_SD_OOB.bin \
+    ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/pre-built/linux/images/
+  fi
+  
   # If the BOOT_QSPI_OPTION is set, copy the BOOT_QSPI.BIN to the 
   # pre-built images folder.
   if [ "$BUILD_BOOT_QSPI_OPTION" == "yes" ]
@@ -573,6 +616,17 @@ create_petalinux_bsp ()
     ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/pre-built/linux/images/
   fi
 
+  # If the BOOT_EMMC_OOB_OPTION is set, copy the BOOT_EMMC_OOB.BIN to the 
+  # pre-built images folder.
+  if [ "$BUILD_BOOT_EMMC_OOB_OPTION" == "yes" ]
+  then
+    cp ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/images/linux/BOOT_EMMC_OOB.bin \
+    ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/pre-built/linux/images/
+
+    cp ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/images/linux/image.ub \
+    ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/pre-built/linux/images/image.oob.ub
+  fi
+
   # If the BOOT_EMMC_NO_BIT_OPTION is set, copy the BOOT_EMMC_No_Bit.BIN and 
   # the system.bit.bin files into the pre-built images folder.
   if [ "$BUILD_BOOT_EMMC_NO_BIT_OPTION" == "yes" ]
@@ -584,7 +638,7 @@ create_petalinux_bsp ()
     ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/pre-built/linux/images/
   fi
 
-  # If the BOOT_SD_NO_BIT_OPTION is set, copy the BOOT_EMMC_No_Bit.BIN and 
+  # If the BOOT_SD_NO_BIT_OPTION is set, copy the BOOT_SD_No_Bit.BIN and 
   # the system.bit.bin files into the pre-built images folder.
   if [ "$BUILD_BOOT_SD_NO_BIT_OPTION" == "yes" ]
   then

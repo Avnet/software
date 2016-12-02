@@ -141,7 +141,7 @@
 #define CONFIG_SYS_PROMPT_HUSH_PS2 "> "
 
 /* auto-boot delay */
-#define	CONFIG_BOOTDELAY	4
+#define	CONFIG_BOOTDELAY	1
 
 /* Don't define BOOTARGS, we get it from the DTB chosen fragment */
 #undef CONFIG_BOOTARGS
@@ -158,7 +158,7 @@
 #define CONFIG_SYS_BOOTMAPSZ 0x8000000
 
 /* PREBOOT */
-#define CONFIG_PREBOOT	"echo U-BOOT for ${hostname};setenv preboot; echo; dhcp"
+#define CONFIG_PREBOOT	"echo U-BOOT for ${hostname};setenv preboot; echo;"
 
 /* Extra U-Boot Env settings */
 #define CONFIG_EXTRA_ENV_SETTINGS \

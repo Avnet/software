@@ -48,6 +48,8 @@
 #!/bin/bash
 
 # Set global variables here.
+APP_PETALINUX_INSTALL_PATH=/opt/petalinux-v2015.2.1-final
+APP_VIVADO_INSTALL_PATH=/opt/Xilinx/Vivado/2015.2
 BUILD_BOOT_QSPI_OPTION=no
 BUILD_BOOT_EMMC_OPTION=no
 BUILD_BOOT_EMMC_NO_BIT_OPTION=no
@@ -67,8 +69,8 @@ source_tools_settings ()
 {
   # Source the tools settings scripts so that both Vivado and PetaLinux can 
   # be used throughout this build script.
-  source /opt/Xilinx/Vivado/2015.2/settings64.sh
-  source /opt/petalinux-v2015.2.1-final/settings.sh
+  source ${APP_VIVADO_INSTALL_PATH}/settings64.sh
+  source ${APP_PETALINUX_INSTALL_PATH}/settings.sh
 }
 
 petalinux_project_restore_boot_config ()

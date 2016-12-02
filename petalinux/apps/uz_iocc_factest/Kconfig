@@ -1,0 +1,14 @@
+###############################################################################
+# Please modify this file if you want to configure your own application.
+# You can uncommon and/or change the following Kconfig elements.
+###############################################################################
+
+
+if ROOTFS_COMPONENT_APPS_NAME_PZ_FMC2_FACTEST
+	comment "No additional options for PZ_FMC2_FACTEST"
+
+# 	config APPS_PZ_FMC2_FACTEST_OPTION0
+#	bool "option0"
+#	help
+#	  Help text
+endif

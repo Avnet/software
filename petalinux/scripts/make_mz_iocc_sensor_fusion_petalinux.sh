@@ -48,6 +48,8 @@
 #!/bin/bash
 
 # Set global variables here.
+APP_PETALINUX_INSTALL_PATH=/opt/petalinux-v2015.2.1-final
+APP_VIVADO_INSTALL_PATH=/opt/Xilinx/Vivado/2015.2
 BUILD_BOOT_QSPI_OPTION=no
 BUILD_BOOT_EMMC_OPTION=no
 BUILD_BOOT_EMMC_NO_BIT_OPTION=no
@@ -62,6 +64,14 @@ PETALINUX_CONFIGS_FOLDER=../../../software/petalinux/configs
 PETALINUX_PROJECTS_FOLDER=../../../software/petalinux/projects
 PETALINUX_SCRIPTS_FOLDER=../../../software/petalinux/scripts
 START_FOLDER=`pwd`
+
+source_tools_settings ()
+{
+  # Source the tools settings scripts so that both Vivado and PetaLinux can 
+  # be used throughout this build script.
+  source ${APP_VIVADO_INSTALL_PATH}/settings64.sh
+  source ${APP_PETALINUX_INSTALL_PATH}/settings.sh
+}
 
 petalinux_project_restore_boot_config ()
 {
@@ -624,11 +634,6 @@ main_make_function ()
   # name specified in the PETALINUX_PROJECT_NAME variable can be distributed
   # for use to others.
 
-  # Source the tools settings scripts so that both Vivado and PetaLinux can 
-  # be used throughout this build script.
-  source /opt/Xilinx/Vivado/2015.2/settings64.sh
-  source /opt/petalinux-v2015.2.1-final/settings.sh
-
   #
   # Create the hardware platforms for the supported targets.
   #
@@ -654,6 +659,10 @@ main_make_function ()
 #  PETALINUX_PROJECT_NAME=mz_7020_sf_2015_2_1
 #  create_petalinux_bsp
 }
+
+# First source any tools scripts to setup the environment needed to call both
+# PetaLinux and Vivado from this make script.
+source_tools_settings
 
 # Call the main_make_function declared above to start building everything.
 main_make_function
