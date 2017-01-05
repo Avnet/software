@@ -48,7 +48,7 @@
 #!/etc/sh
 
 # FAT version information.
-FAT_VERSION_NUMBER=1.0
+FAT_VERSION_NUMBER=1.1
 
 # Sleep interval between tests.
 SLEEP_INTERVAL_NORMAL=1
@@ -86,6 +86,9 @@ PL_GPIO_LOOPBACK_TEST_RESULT=-1
 PS_PMOD_LOOPBACK_TEST_RESULT=-1
 USER_SWITCH_TEST_RESULT=-1
 OOB_IMAGE_PROGRAM_RESULT=-1
+
+# Launch the user LED blink test application into the background.
+${TEST_APP_FOLDER}/${USER_LED_TEST_APP}&
 
 # Checks to see if OOB boot firmware files are present.  If they are present,
 # then the factory test also includes the SOM only portion of tests by setting

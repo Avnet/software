@@ -64,7 +64,6 @@
 
 #define GPIO_PL_PB_OFFSET				318
 #define GPIO_LED_OFFSET					322
-#define GPIO_PS_PB_OFFSET				364
 
 /* The LEDx_GPIO_OFFSET and PBx_GPIO_OFFSET definitions are used to indicate
  * the relative offset from the base start of the EMIO GPIO user connections.
@@ -82,12 +81,10 @@
 #define LED7_GPIO_OFFSET               ((GPIO_LED_OFFSET) + 6)
 #define LED8_GPIO_OFFSET               ((GPIO_LED_OFFSET) + 7)
 
-#define PB1_GPIO_OFFSET                ((GPIO_PS_PB_OFFSET) + 0)
-
-#define PB2_GPIO_OFFSET                ((GPIO_PL_PB_OFFSET) + 0)
-#define PB3_GPIO_OFFSET                ((GPIO_PL_PB_OFFSET) + 1)
-#define PB4_GPIO_OFFSET                ((GPIO_PL_PB_OFFSET) + 2)
-#define PB5_GPIO_OFFSET                ((GPIO_PL_PB_OFFSET) + 3)
+#define PB1_GPIO_OFFSET                ((GPIO_PL_PB_OFFSET) + 0)
+#define PB2_GPIO_OFFSET                ((GPIO_PL_PB_OFFSET) + 1)
+#define PB3_GPIO_OFFSET                ((GPIO_PL_PB_OFFSET) + 2)
+#define PB4_GPIO_OFFSET                ((GPIO_PL_PB_OFFSET) + 3)
 
 static unsigned int direction = 1;
 
@@ -96,7 +93,7 @@ int set_next_count_pattern(void)
 	const int char_buf_size = 80;
 	static unsigned int count = 0;
 	
-	char gpio_setting[5];
+	char gpio_setting[4];
 	
 	int test_result = 0;
 	char formatted_file_name[char_buf_size];
@@ -393,7 +390,7 @@ int set_next_count_pattern(void)
 int set_next_input_pattern(void)
 {
 	const int char_buf_size = 80;
-	char gpio_setting[5];
+	char gpio_setting[4];
 	int test_result = 0;
 	char formatted_file_name[char_buf_size];
 
@@ -410,7 +407,6 @@ int set_next_input_pattern(void)
 	FILE  *fp_pb2;
 	FILE  *fp_pb3;
 	FILE  *fp_pb4;
-	FILE  *fp_pb5;
 
 	// Open the gpio value properties so that they can be read/written.
 
@@ -546,17 +542,6 @@ int set_next_input_pattern(void)
 	}
 	fp_pb4 = fopen(formatted_file_name, "r+");
 
-	// Open the value property file for PB5.
-	test_result = snprintf(formatted_file_name, (char_buf_size - 1), FILE_FORMAT_GPIO_PATH"/gpio%d"FILE_FORMAT_GPIO_VALUE, PB5_GPIO_OFFSET);
-	if ((test_result < 0) ||
-		(test_result == (char_buf_size - 1)))
-	{
-		printf("Error formatting string, check the GPIO specified\r\n");
-		printf(formatted_file_name);
-		return -1;
-	}
-	fp_pb5 = fopen(formatted_file_name, "r+");
-
 	// Read the current value of the PB1 GPIO input.
 	fscanf(fp_pb1, "%s", gpio_setting);
 
@@ -633,45 +618,6 @@ int set_next_input_pattern(void)
 		fflush(fp_led8);		
 	}
 
-	// Read the current value of the PB5 GPIO input.
-	fscanf(fp_pb5, "%s", gpio_setting);
-
-	// Determine whether the PL push button is being depressed or not.
-	if (!strcmp(gpio_setting, "1"))
-	{
-		// Write test pattern to LEDs.
-		if (direction == 0)
-		{
-			strcpy(gpio_setting, "1");
-
-			// Now turn all LEDs ON.
-			direction = 1;
-		}
-		else
-		{
-			strcpy(gpio_setting, "0");
-
-			// Now turn all LEDs OFF.
-			direction = 0;
-		}
-		fwrite(&gpio_setting, sizeof(char), 1, fp_led1);
-		fwrite(&gpio_setting, sizeof(char), 1, fp_led2);
-		fwrite(&gpio_setting, sizeof(char), 1, fp_led3);
-		fwrite(&gpio_setting, sizeof(char), 1, fp_led4);
-		fwrite(&gpio_setting, sizeof(char), 1, fp_led5);
-		fwrite(&gpio_setting, sizeof(char), 1, fp_led6);
-		fwrite(&gpio_setting, sizeof(char), 1, fp_led7);
-		fwrite(&gpio_setting, sizeof(char), 1, fp_led8);
-		fflush(fp_led1);
-		fflush(fp_led2);
-		fflush(fp_led3);
-		fflush(fp_led4);
-		fflush(fp_led5);
-		fflush(fp_led6);
-		fflush(fp_led7);
-		fflush(fp_led8);
-	}
-
 	// This test always passes since it requires user interaction.
 	test_result = 0;
 
@@ -688,14 +634,13 @@ int set_next_input_pattern(void)
 	fclose(fp_pb2);
 	fclose(fp_pb3);
 	fclose(fp_pb4);
-	fclose(fp_pb5);
 
 	return test_result;
 }
 
 int main()
 {
-	char gpio_setting[5];
+	char gpio_setting[4];
 	int test_result = 0;
 	const int char_buf_size = 80;
 	char formatted_file_name[char_buf_size];
@@ -705,7 +650,7 @@ int main()
 	printf(" \n");
 	printf("***********************************************************\n");
 	printf("*                                                         *\n");
-	printf("*   UltraZed IO Carrier Card LED and Push Button Tests    *\n");
+	printf("*   UltraZed PCIe Carrier Card LED and Push Button Tests    *\n");
 	printf("*                                                         *\n");
 	printf("***********************************************************\n");
 	printf(" \n");
@@ -776,11 +721,6 @@ int main()
 
 		// Set the value property for the export to the GPIO number for PB4.
 		snprintf(gpio_setting, 4, "%d", PB4_GPIO_OFFSET);
-		fwrite(&gpio_setting, sizeof(char), 3, fp);
-		fflush(fp);
-
-		// Set the value property for the export to the GPIO number for PB5.
-		snprintf(gpio_setting, 4, "%d", PB5_GPIO_OFFSET);
 		fwrite(&gpio_setting, sizeof(char), 3, fp);
 		fflush(fp);
 
@@ -913,42 +853,6 @@ int main()
 	{
 		fscanf(fp, "%s", gpio_setting);
 		printf("gpio%d set as ", PB4_GPIO_OFFSET);
-
-		// Display whether the GPIO is set as input or output.
-		if (!strcmp(gpio_setting, "out"))
-		{
-			printf("OUTPUT\n");
-
-			// Set the direction property to "in".
-			strcpy(gpio_setting, "in");
-			fwrite(&gpio_setting, sizeof(char), 2, fp);
-			fflush(fp);
-		}
-		else
-		{
-			printf("INPUT\n");
-		}
-		fclose(fp);
-	}
-
-	// Check the direction property of the PSGPIO number for PB5.
-	test_result = snprintf(formatted_file_name, (char_buf_size - 1), FILE_FORMAT_GPIO_PATH"/gpio%d"FILE_FORMAT_GPIO_DIRECTION, PB5_GPIO_OFFSET);
-	if ((test_result < 0) ||
-		(test_result == (char_buf_size - 1)))
-	{
-		printf("Error formatting string, check the GPIO specified\r\n");
-		printf(formatted_file_name);
-		return -1;
-	}
-	fp = fopen(formatted_file_name, "r+");
-	if (fp == NULL)
-	{
-		printf("Error opening "FILE_FORMAT_GPIO_PATH"/gpio%d"FILE_FORMAT_GPIO_DIRECTION" node\n", PB5_GPIO_OFFSET);
-	}
-	else
-	{
-		fscanf(fp, "%s", gpio_setting);
-		printf("gpio%d set as ", PB5_GPIO_OFFSET);
 
 		// Display whether the GPIO is set as input or output.
 		if (!strcmp(gpio_setting, "out"))
@@ -1256,7 +1160,7 @@ int main()
 	}
 
 	// Perform LED pattern generation.
-	printf("LED Pattern Generation on UltraZed IO Carrier\n");
+	printf("LED Pattern Generation on UltraZed PCIe Carrier Card\n");
 
 	// This test always passes since it requires user interaction.
 	test_result = 0;
@@ -1268,7 +1172,7 @@ int main()
 		usleep(110000);
 	}
 
-	printf("LED Pattern Generation complete...");
+	printf("LED Pattern Generation Complete...");
 	
 	if (test_result == 0)
 	{
