@@ -43,17 +43,14 @@
 
 // Constant definitions.
 // ---------------------------------------------------------------------------
-#define GPIO3_BIT_MASK					0xFFFFFFFF
-#define GPIO3_BIT_WIDTH				32
+#define GPIO3_BIT_MASK					0x000000FF
+#define GPIO3_BIT_WIDTH				8
 
-#define GPIO4_BIT_MASK					0x0000FFFF
-#define GPIO4_BIT_WIDTH				16
+#define GPIO4_BIT_MASK					0x0003FFFF
+#define GPIO4_BIT_WIDTH				18
 
-#define GPIO5_BIT_MASK					0x00001FFF
-#define GPIO5_BIT_WIDTH				13
-
-#define GPIO6_BIT_MASK					0x000007FF
-#define GPIO6_BIT_WIDTH				11
+#define GPIO5_BIT_MASK					0x0003FFFF
+#define GPIO5_BIT_WIDTH				18
 
 // ---------------------------------------------------------------------------
 // Function prototype declarations.

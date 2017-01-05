@@ -42,7 +42,6 @@
 int32u gpio3_pl;
 int32u gpio4_pl;
 int32u gpio5_pl;
-int32u gpio6_pl;
 
 int gpio_setup(int32u verbosity)
 {
@@ -88,19 +87,6 @@ int gpio_setup(int32u verbosity)
 		if (verbosity)
 		{
 			printf("   Mapped GPIO5 PL successfully to 0x%08X\r\n", gpio5_pl);
-		}
-	}
-
-	unit_result = pl_gpio_initialize(&gpio6_pl, GPIO6_DEVICE_ADDRESS);
-	if (unit_result != TEST_SUCCESS)
-	{
-		final_result = TEST_FAILURE;
-	}
-	else
-	{
-		if (verbosity)
-		{
-			printf("   Mapped GPIO6 PL successfully to 0x%08X\r\n", gpio6_pl);
 		}
 	}
 
@@ -315,76 +301,6 @@ int test_gpio5(int32u test_pattern, int32u verbosity)
 }
 
 // ---------------------------------------------------------------------------
-int test_gpio6(int32u test_pattern, int32u verbosity)
-{
-	int result = TEST_SUCCESS;
-	int32u delay_wait = 1;
-    int32u test_pattern_channel1;
-    int32u test_pattern_channel2;
-
-    /*
-     * Set the direction for both of the channel1 IOs to output.
-     */
-    if (pl_gpio_set_data_direction(gpio6_pl, PL_GPIO_CHANNEL1, (GPIO6_BIT_MASK & ~GPIO6_BIT_MASK)) != TEST_SUCCESS)
-    {
-    	printf("   Can't set GPIO6 channel 1 direction\r\n");
-    	result = TEST_FAILURE;
-    }
-
-    /*
-     * Set the direction for both of the channel2 IOs to input.
-     */
-    if (pl_gpio_set_data_direction(gpio6_pl, PL_GPIO_CHANNEL2, GPIO6_BIT_MASK) != TEST_SUCCESS)
-    {
-    	printf("   Can't set GPIO6 channel 2 direction\r\n");
-    	result = TEST_FAILURE;
-    }
-
-    /*
-     * Set the values of each of the output channels.
-     */
-    test_pattern_channel1 = (test_pattern & GPIO6_BIT_MASK);
-    if (pl_gpio_data_write(gpio6_pl, PL_GPIO_CHANNEL1, &test_pattern_channel1) != TEST_SUCCESS)
-    {
-    	printf("   Can't write data to GPIO6\r\n");
-    	result = TEST_FAILURE;
-    }
-
-    /*
-     * Wait for some time to get the loopback propagation latched.
-     */
-    while (delay_wait-- > 0);
-
-    /*
-     * Get the values of each of the input channels.
-     */
-    if (pl_gpio_data_read(gpio6_pl, PL_GPIO_CHANNEL2, &test_pattern_channel2) != TEST_SUCCESS)
-    {
-    	printf("   Can't read data from GPIO6\r\n");
-    	result = TEST_FAILURE;
-    }
-    test_pattern_channel2 = (test_pattern_channel2 & GPIO6_BIT_MASK);
-
-    /*
-     * Compare the values of each of the result registers to determine if the
-     * test pattern propagated successfully.
-     */
-    if (test_pattern_channel1 != test_pattern_channel2)
-    {
-        printf("   \033[5mFAILURE\033[0m on GPIO6: expected 0x%08X, actual 0x%08X\r\n", test_pattern_channel1, test_pattern_channel2);
-
-        result = TEST_FAILURE;
-    }
-    else if (verbosity)
-    {
-        printf("   SUCCESS on GPIO6: expected 0x%08X, actual 0x%08X\r\n", test_pattern_channel1, test_pattern_channel2);
-    }
-
-    return result;
-}
-
-
-// ---------------------------------------------------------------------------
 int gpio_test(int32u test_pattern, int32u verbosity)
 {
     int result = TEST_SUCCESS;
@@ -404,11 +320,6 @@ int gpio_test(int32u test_pattern, int32u verbosity)
     }
 
     if (test_gpio5(test_pattern, verbosity) != TEST_SUCCESS)
-    {
-        fail = 1;
-    }
-
-    if (test_gpio6(test_pattern, verbosity) != TEST_SUCCESS)
     {
         fail = 1;
     }
