@@ -4,10 +4,10 @@
 ###############################################################################
 
 
-if ROOTFS_COMPONENT_APPS_NAME_ULTRAZED_OOB_INIT
-	comment "No additional options for ULTRAZED_OOB_INIT"
+if ROOTFS_COMPONENT_APPS_NAME_ULTRAZED_PCIEC_OOB_INIT
+	comment "No additional options for ULTRAZED_PCIEC_OOB_INIT"
 
-# 	config APPS_ULTRAZED_OOB_INIT_OPTION0
+# 	config APPS_ULTRAZED_PCIEC_OOB_INIT_OPTION0
 #	bool "option0"
 #	help
 #	  Help text

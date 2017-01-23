@@ -329,13 +329,31 @@ create_petalinux_bsp ()
   cp -rf ${START_FOLDER}/${PETALINUX_APPS_FOLDER}/linux_ps_led_blink/* \
   ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/components/apps/linux_ps_led_blink
 
-  # Create a PetaLinux application named ultrazed_oob_init.
-  petalinux-create --type apps --name ultrazed_oob_init --enable
+  # If the target board is the UZ3EG_IOCC, then build the startup script
+  # specific to this board.
+  if [ "$HDL_BOARD_NAME" == "UZ3EG_IOCC" ]
+  then
+    # Create a PetaLinux application named ultrazed_iocc_oob_init.
+    petalinux-create --type apps --name ultrazed_iocc_oob_init --enable
 
-  # Copy the ultrazed_oob_init application information over to the 
-  # ultrazed_oob_init application folder.
-  cp -rf ${START_FOLDER}/${PETALINUX_APPS_FOLDER}/ultrazed_oob_init/* \
-  ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/components/apps/ultrazed_oob_init
+    # Copy the ultrazed_oob_init application information over to the 
+    # ultrazed_iocc_oob_init application folder.
+    cp -rf ${START_FOLDER}/${PETALINUX_APPS_FOLDER}/ultrazed_iocc_oob_init/* \
+    ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/components/apps/ultrazed_iocc_oob_init
+  fi
+
+  # If the target board is the UZ3EG_PCIEC, then build the startup script
+  # specific to this board.
+  if [ "$HDL_BOARD_NAME" == "UZ3EG_PCIEC" ]
+  then
+    # Create a PetaLinux application named ultrazed_pciec_oob_init.
+    petalinux-create --type apps --name ultrazed_pciec_oob_init --enable
+
+    # Copy the ultrazed_oob_init application information over to the 
+    # ultrazed_pciec_oob_init application folder.
+    cp -rf ${START_FOLDER}/${PETALINUX_APPS_FOLDER}/ultrazed_pciec_oob_init/* \
+    ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/components/apps/ultrazed_pciec_oob_init
+  fi
 
   # Modify the stock First Stage Boot Loader application source code to 
   # include additional patches specific to the board hardware.
@@ -351,9 +369,9 @@ create_petalinux_bsp ()
   # Overwrite the rootfs component config with the revision controlled source
   # config.
   echo " "
-  echo "Overwriting rootfs config ..."
+  echo "Overwriting rootfs config for ${HDL_BOARD_NAME} hardware ..."
   echo " "
-  cp -rf ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/rootfs/config.UZ3EG_IOCC \
+  cp -rf ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/rootfs/config.${HDL_BOARD_NAME} \
   ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/subsystems/linux/configs/rootfs/config
 
   # Overwrite the top level devicetree source with the revision controlled
@@ -692,7 +710,14 @@ main_make_function ()
   # Create the PetaLinux BSP for the UZ3EG_IOCC target.
   #
   HDL_BOARD_NAME=UZ3EG_IOCC
-  PETALINUX_PROJECT_NAME=uz3eg_2016_2
+  PETALINUX_PROJECT_NAME=uz3eg_iocc_2016_2
+  create_petalinux_bsp
+
+  #
+  # Create the PetaLinux BSP for the UZ3EG_PCIEC target.
+  #
+  HDL_BOARD_NAME=UZ3EG_PCIEC
+  PETALINUX_PROJECT_NAME=uz3eg_pciec_2016_2
   create_petalinux_bsp
 
 }

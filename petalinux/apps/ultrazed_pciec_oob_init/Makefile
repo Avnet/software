@@ -4,7 +4,7 @@ endif
 
 include apps.common.mk
 
-APP = ultrazed_oob_init.sh
+APP = ultrazed_pciec_oob_init.sh
 
 all: build install
 
@@ -16,7 +16,7 @@ clean:
 
 install: $(APP)
 	$(TARGETINST) -d -p 0755 $(APP) /etc/init.d/$(APP)
-	$(TARGETINST) -s /etc/init.d/$(APP) /etc/rc5.d/S99sf_startup
+	$(TARGETINST) -s /etc/init.d/$(APP) /etc/rc5.d/S99oob_startup
 
 
 
