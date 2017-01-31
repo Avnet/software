@@ -1,0 +1,14 @@
+###############################################################################
+# Please modify this file if you want to configure your own application.
+# You can uncommon and/or change the following Kconfig elements.
+###############################################################################
+
+
+if ROOTFS_COMPONENT_APPS_NAME_UZ_FLASH_PROGRAMMING
+	comment "No additional options for UZ_FLASH_PROGRAMMING"
+
+# 	config APPS_UZ_FLASH_PROGRAMMING_OPTION0
+#	bool "option0"
+#	help
+#	  Help text
+endif
