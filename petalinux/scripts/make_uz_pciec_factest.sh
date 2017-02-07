@@ -42,6 +42,8 @@
 #  Dependencies:        None
 #
 #  Revision:            Dec 30, 2016: 1.00 Initial version
+#                       Feb 06, 2017: 1.01 Updated to include 
+#                                          uz_flash_programming application
 # 
 # ----------------------------------------------------------------------------
 
@@ -229,6 +231,14 @@ create_petalinux_bsp ()
   # application folder.
   cp -rf ${START_FOLDER}/${PETALINUX_APPS_FOLDER}/factest_plnux_init/* \
   ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/components/apps/factest_plnux_init
+
+  # Create a PetaLinux application named uz_flash_programming.
+  petalinux-create --type apps --name uz_flash_programming --enable
+
+  # Copy the uz_flash_programming folder over to the uz_flash_programming 
+  # application folder.
+  cp -rf ${START_FOLDER}/${PETALINUX_APPS_FOLDER}/uz_flash_programming/* \
+  ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/components/apps/uz_flash_programming/
 
   # Create a PetaLinux application named linux_pl_gpio_loopback_test.
   petalinux-create --type apps --name linux_pl_gpio_loopback_test --enable

@@ -42,6 +42,8 @@
 #  Dependencies:        None
 #
 #  Revision:            Nov 21, 2016: 1.00 Initial version
+#                       Jan 30, 2017: 1.01 Updated to include 
+#                                          uz_flash_programming application
 # 
 # ----------------------------------------------------------------------------
 
