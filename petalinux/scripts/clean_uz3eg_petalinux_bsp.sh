@@ -92,6 +92,12 @@ main_clean_function ()
   PETALINUX_PROJECT_NAME=uz3eg_pciec_2016_2
   clean_petalinux_bsp
 
+  #
+  # Create the PetaLinux BSP for the UZ3EG_PCIEC target.
+  #
+  HDL_BOARD_NAME=UZ3EG_PCIEC
+  PETALINUX_PROJECT_NAME=uz3eg_pciec_2016_2
+  clean_petalinux_bsp
 }
 
 # Call the main_clean_function declared above to start cleaning up all 
