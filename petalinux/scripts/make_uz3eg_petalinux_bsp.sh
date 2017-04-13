@@ -724,9 +724,9 @@ main_make_function ()
   #
   # Create the PetaLinux BSP for the UZ3EG_PCIEC target.
   #
-#  HDL_BOARD_NAME=UZ3EG_PCIEC
-#  PETALINUX_PROJECT_NAME=uz3eg_pciec_2016_2
-#  create_petalinux_bsp
+  HDL_BOARD_NAME=UZ3EG_PCIEC
+  PETALINUX_PROJECT_NAME=uz3eg_pciec_2016_2
+  create_petalinux_bsp
 
 }
 
