@@ -329,6 +329,14 @@ create_petalinux_bsp ()
   cp -rf ${START_FOLDER}/${PETALINUX_APPS_FOLDER}/linux_ps_led_blink/* \
   ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/components/apps/linux_ps_led_blink
 
+  # Create a PetaLinux application named ultrazed_sata_performance_test.
+  petalinux-create --type apps --name ultrazed_sata_performance_test --enable
+
+  # Copy the ultrazed_sata_performance_test application information over to the 
+  # linux_ps_led_blink application folder.
+  cp -rf ${START_FOLDER}/${PETALINUX_APPS_FOLDER}/ultrazed_sata_performance_test/* \
+  ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/components/apps/ultrazed_sata_performance_test
+
   # If the target board is the UZ3EG_IOCC, then build the startup script
   # specific to this board.
   if [ "$HDL_BOARD_NAME" == "UZ3EG_IOCC" ]
@@ -716,9 +724,9 @@ main_make_function ()
   #
   # Create the PetaLinux BSP for the UZ3EG_PCIEC target.
   #
-  HDL_BOARD_NAME=UZ3EG_PCIEC
-  PETALINUX_PROJECT_NAME=uz3eg_pciec_2016_2
-  create_petalinux_bsp
+#  HDL_BOARD_NAME=UZ3EG_PCIEC
+#  PETALINUX_PROJECT_NAME=uz3eg_pciec_2016_2
+#  create_petalinux_bsp
 
 }
 

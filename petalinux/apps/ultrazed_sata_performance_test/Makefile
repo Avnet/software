@@ -4,7 +4,7 @@ endif
 
 include apps.common.mk
 
-APP = ultrazed_iocc_oob_init.sh
+APP = sata_performance_test.sh
 
 all: build install
 
@@ -15,9 +15,7 @@ clean:
 .PHONY: install image
 
 install: $(APP)
-	$(TARGETINST) -d -p 0755 $(APP) /etc/init.d/$(APP)
-	$(TARGETINST) -s /etc/init.d/$(APP) /etc/rc5.d/S99oob_startup
-
+	$(TARGETINST) -p 0755 $(APP) /home/root/$(APP)
 
 
 
