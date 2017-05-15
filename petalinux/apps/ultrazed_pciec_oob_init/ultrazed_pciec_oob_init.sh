@@ -4,7 +4,7 @@
 echo " "
 echo "*********************************************************************"
 echo "***                                                               ***"
-echo "***   Avnet UltraZed Out Of Box PetaLinux Build V1.0              ***"
+echo "***   Avnet UltraZed Out Of Box PetaLinux Build V1.1              ***"
 echo "***                                                               ***"
 echo "***   Based Upon the UZ3EG 2016.2 PetaLinux BSP from Avnet        ***"
 echo "***                                                               ***"
