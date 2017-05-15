@@ -1,0 +1,14 @@
+###############################################################################
+# Please modify this file if you want to configure your own application.
+# You can uncommon and/or change the following Kconfig elements.
+###############################################################################
+
+
+if ROOTFS_COMPONENT_APPS_NAME_DEMO_SETUP
+	comment "No additional options for DEMO_SETUP"
+
+# 	config APPS_DEMO_SETUP_OPTION0
+#	bool "option0"
+#	help
+#	  Help text
+endif

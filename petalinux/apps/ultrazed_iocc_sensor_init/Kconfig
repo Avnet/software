@@ -4,10 +4,10 @@
 ###############################################################################
 
 
-if ROOTFS_COMPONENT_APPS_NAME_IPERF3
-	comment "No additional options for IPERF3"
+if ROOTFS_COMPONENT_APPS_NAME_ULTRAZED_IOCC_SENSOR_INIT
+	comment "No additional options for ULTRAZED_IOCC_SENSOR_INIT"
 
-# 	config APPS_IPERF3_OPTION0
+# 	config APPS_ULTRAZED_IOCC_OOB_INIT_OPTION0
 #	bool "option0"
 #	help
 #	  Help text

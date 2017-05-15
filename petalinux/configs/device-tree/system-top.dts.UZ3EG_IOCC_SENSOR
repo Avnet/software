@@ -1,0 +1,185 @@
+/*
+ * dts file for Xilinx ZynqMP ZCU102 RevB
+ *
+ * (C) Copyright 2016, Xilinx, Inc.
+ *
+ * Michal Simek <michal.simek@xilinx.com>
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
+ * the License, or (at your option) any later version.
+ */
+
+/dts-v1/;
+
+#include "zynqmp.dtsi"
+#include "zynqmp-clk.dtsi"
+#include "pcw.dtsi"
+#include "pl.dtsi"
+#include "system-conf.dtsi"
+
+/ {
+	model = "Avnet UltraZed-3EG";
+	compatible = "xlnx,zynqmp-zcu102", "xlnx,zynqmp";
+};
+
+&gem3 {
+	status = "okay";
+	local-mac-address = [00 0a 35 00 02 90];
+	phy-mode = "rgmii-id";
+	phy-handle = <&phy0>;
+	phy0: phy@5 {
+		reg = <0x5>;
+		ti,rx-internal-delay = <0x5>;
+		ti,tx-internal-delay = <0x5>;
+		ti,fifo-depth = <0x1>;
+	};
+};
+
+&i2c1 {
+	status = "okay";
+	clock-frequency = <400000>;
+
+	i2cswitch@70 { /* U7 on UZ3EG SOM */
+		compatible = "nxp,pca9542";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		reg = <0x70>;
+		i2c@0 { /* i2c mw 70 0 1 */
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0>;
+		};
+	};
+};
+
+&qspi {
+	#address-cells = <1>;
+	#size-cells = <0>;
+	status = "okay";
+	flash0: flash@0 {
+		compatible = "micron,n25q256a"; /* 32MB */
+		#address-cells = <1>;
+		#size-cells = <1>;
+		reg = <0x0>;
+		spi-tx-bus-width = <1>;
+		spi-rx-bus-width = <4>; /* FIXME also DUAL configuration possible */
+		spi-max-frequency = <108000000>; /* Based on DC1 spec */
+		partition@qspi-boot { 
+			label = "qspi-boot";
+			reg = <0x0 0x780000>;
+		};
+		partition@qspi-bootenv { 
+			label = "qspi-bootenv";
+			reg = <0x780000 0x80000>;
+		};
+		partition@qspi-linux { 
+			label = "qspi-linux";
+			reg = <0x800000 0x3800000>;
+		};
+	};
+};
+
+/* SD0 eMMC, 8-bit wide data bus */
+/* non-removable; */
+/* broken-mmc-highspeed; */
+&sdhci0 {
+	status = "okay";
+	bus-width = <8>;
+	clock-frequency = <199998006>;
+	max-frequency = <50000000>;
+};
+
+/* SD1 with level shifter */
+&sdhci1 {
+	status = "okay";
+	max-frequency = <50000000>;
+	no-1-8-v;	/* for 1.0 silicon */
+};
+
+/* ULPI SMSC USB3320 */
+&usb0 {
+	status = "okay";
+};
+
+&dwc3_0 {
+	status = "okay";
+	dr_mode = "host";
+	phy-names = "usb3-phy";
+};
+
+&axi_iic_0{
+	#address-cells = <1>;
+	#size-cells = <0>;
+	compatible = "xlnx,xps-iic-2.00.a";
+	interrupt-parent = <&gic>;
+	interrupts = <0 90 4>; 
+	reg = <0x0 0x80030000 0x0 0x10000>;
+	i2c1@1e {
+		#address-cells = <0x1>;
+		#size-cells = <0x0>;
+		compatible = "stm,lis3mdl_mag";
+		reg = <0x1e>;
+	};
+
+	i2c2@5d {
+		#address-cells = <0x1>;
+		#size-cells = <0x0>;
+		compatible = "stm,lps25hb";
+		reg = <0x5d>;
+	};
+
+	i2c3@5f {
+		#address-cells = <0x1>;
+		#size-cells = <0x0>;
+		compatible = "stm,hts221";
+		reg = <0x5f>;
+	};
+
+	i2c4@6b {
+		#address-cells = <0x1>;
+		#size-cells = <0x0>;
+		reg = <0x6b>;
+	};
+};
+
+&axi_iic_1 {
+	#address-cells = <1>;
+	#size-cells = <0>;
+	compatible = "xlnx,xps-iic-2.00.a";
+	interrupt-parent = <&gic>;
+	interrupts = <0 91 4>;
+	reg = <0x0 0x80040000 0x0 0x10000>;
+
+	i2c5@4a {
+		#address-cells = <0x1>;
+		#size-cells = <0x0>;
+		compatible = "maxim,max44000";
+		reg = <0x4a>;
+	};
+
+};
+
+&axi_quad_spi_0 {
+	bits-per-word = <8>;
+	compatible = "xlnx,xps-spi-2.00.a";
+	fifo-size = <16>;
+	interrupt-parent = <&gic>;
+	interrupts = <0 89 1>;
+	num-cs = <0x1>;
+	reg = <0x0 0x80050000 0x0 0x10000>;
+	xlnx,num-ss-bits = <0x1>;
+	xlnx,spi-mode = <0>;
+
+	tempSensor@0 {
+		#address-cells = <0x1>;
+		#size-cells = <0x0>;
+		compatible = "spidev";
+		spi-max-frequency = <0x2faf08>;
+		reg = <0x0>;
+	};
+
+};
+
+

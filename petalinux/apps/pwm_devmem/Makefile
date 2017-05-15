@@ -4,18 +4,28 @@ endif
 
 include apps.common.mk
 
-APP = iperf3
+APP = pwm_devmem
+
+# Add any other object files to this list below
+APP_OBJS = pwm_devmem.o
 
 all: build install
 
-build: 
+build: $(APP)
+
+$(APP): $(APP_OBJS)
+	$(CC) $(LDFLAGS) -o $@ $(APP_OBJS) $(LDLIBS)
 
 clean:
+	-rm -f $(APP) *.elf *.gdb *.o
 
 .PHONY: install image
 
 install: $(APP)
-	$(TARGETINST) -d -p 0755 $(APP) /usr/bin/$(APP)
+	$(TARGETINST) -d $(APP) /home/root/$(APP)
+
+%.o: %.c
+	$(CC) -c $(CFLAGS) -o $@ $<
 
 help:
 	@echo ""

@@ -1,0 +1,14 @@
+###############################################################################
+# Please modify this file if you want to configure your own application.
+# You can uncommon and/or change the following Kconfig elements.
+###############################################################################
+
+
+if ROOTFS_COMPONENT_APPS_NAME_SETUP_ETH1
+	comment "No additional options for SETUP_ETH1"
+
+# 	config APPS_SETUP_ETH1_OPTION0
+#	bool "option0"
+#	help
+#	  Help text
+endif
