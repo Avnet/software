@@ -62,8 +62,8 @@ static void pabort(const char *s)
 	abort();
 }
 
-//static const char *device = "/dev/spidev32766.0";   // Default for PetaLinux
-static const char *device = "/dev/spidev0.0";   	// Default for Pulsar 7
+static const char *device = "/dev/spidev32766.0";   // Default for PetaLinux
+//static const char *device = "/dev/spidev0.0";   	// Default for Pulsar 7
 static uint8_t mode = SPI_CPHA;						// Xilinx PL SPI IP requires a clock phase shift to align the data
 static uint8_t bits = 8;
 static uint32_t speed = 3125000;					// Maximum speed for the Xilinx PL SPI IP, as confgured in Vivado
